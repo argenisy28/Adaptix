@@ -67,6 +67,7 @@ def preview_workout(request: WorkoutRequest):
         schedule=recommended_split["schedule"],
         goal=request.goal,
         equipment=request.equipment,
+        experience_level=request.experience_level,
     )
 
     return {

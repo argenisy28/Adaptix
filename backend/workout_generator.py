@@ -1,13 +1,72 @@
 from backend.exercise_library import EXERCISE_LIBRARY
 
 
-def get_training_parameters(goal: str):
+def get_variation_index(day_name: str):
     """
-    Return sets, reps, and rest times based on the user's goal.
+    Determine which exercise variation should be used
+    based on the workout's A, B, or C designation.
+    """
+
+    if day_name.endswith("B"):
+        return 1
+
+    if day_name.endswith("C"):
+        return 2
+
+    return 0
+
+
+def select_exercise(
+    movement: str,
+    equipment: str,
+    day_name: str,
+):
+    """
+    Select an exercise variation for a movement pattern.
+    """
+
+    exercises = EXERCISE_LIBRARY[movement][equipment]
+
+    variation_index = get_variation_index(day_name)
+
+    return exercises[variation_index % len(exercises)]
+
+
+def get_experience_settings(experience_level: str):
+    """
+    Adjust workout volume based on training experience.
+    """
+
+    if experience_level == "beginner":
+        return {
+            "set_modifier": -1,
+            "exercise_limit": 4,
+        }
+
+    if experience_level == "advanced":
+        return {
+            "set_modifier": 1,
+            "exercise_limit": 6,
+        }
+
+    # Intermediate
+    return {
+        "set_modifier": 0,
+        "exercise_limit": 6,
+    }
+
+
+def get_training_parameters(
+    goal: str,
+    experience_level: str,
+):
+    """
+    Return sets, reps, and rest times based on the
+    user's goal and experience level.
     """
 
     if goal == "strength":
-        return {
+        parameters = {
             "compound_sets": 4,
             "compound_reps": "4-6",
             "accessory_sets": 3,
@@ -16,8 +75,8 @@ def get_training_parameters(goal: str):
             "accessory_rest_seconds": 90,
         }
 
-    if goal == "muscle_gain":
-        return {
+    elif goal == "muscle_gain":
+        parameters = {
             "compound_sets": 3,
             "compound_reps": "6-10",
             "accessory_sets": 3,
@@ -26,8 +85,8 @@ def get_training_parameters(goal: str):
             "accessory_rest_seconds": 90,
         }
 
-    if goal == "weight_loss":
-        return {
+    elif goal == "weight_loss":
+        parameters = {
             "compound_sets": 3,
             "compound_reps": "8-12",
             "accessory_sets": 3,
@@ -36,15 +95,38 @@ def get_training_parameters(goal: str):
             "accessory_rest_seconds": 60,
         }
 
-    # General fitness
-    return {
-        "compound_sets": 3,
-        "compound_reps": "8-12",
-        "accessory_sets": 2,
-        "accessory_reps": "10-15",
-        "compound_rest_seconds": 90,
-        "accessory_rest_seconds": 60,
-    }
+    else:
+        # General fitness
+        parameters = {
+            "compound_sets": 3,
+            "compound_reps": "8-12",
+            "accessory_sets": 2,
+            "accessory_reps": "10-15",
+            "compound_rest_seconds": 90,
+            "accessory_rest_seconds": 60,
+        }
+
+    experience_settings = get_experience_settings(
+        experience_level
+    )
+
+    set_modifier = experience_settings["set_modifier"]
+
+    parameters["compound_sets"] = max(
+        2,
+        parameters["compound_sets"] + set_modifier,
+    )
+
+    parameters["accessory_sets"] = max(
+        2,
+        parameters["accessory_sets"] + set_modifier,
+    )
+
+    parameters["exercise_limit"] = (
+        experience_settings["exercise_limit"]
+    )
+
+    return parameters
 
 
 def get_movement_patterns(day_name: str):
@@ -135,14 +217,22 @@ def generate_workout_day(
     day_name: str,
     goal: str,
     equipment: str,
+    experience_level: str,
 ):
     """
     Generate one complete workout day.
     """
 
-    parameters = get_training_parameters(goal)
+    parameters = get_training_parameters(
+        goal=goal,
+        experience_level=experience_level,
+    )
 
     movement_patterns = get_movement_patterns(day_name)
+
+    exercise_limit = parameters["exercise_limit"]
+
+    movement_patterns = movement_patterns[:exercise_limit]
 
     workout = []
 
@@ -157,7 +247,11 @@ def generate_workout_day(
 
     for movement in movement_patterns:
 
-        exercise_name = EXERCISE_LIBRARY[movement][equipment]
+        exercise_name = select_exercise(
+            movement=movement,
+            equipment=equipment,
+            day_name=day_name,
+        )
 
         if movement in compound_movements:
             sets = parameters["compound_sets"]
@@ -187,6 +281,7 @@ def generate_program(
     schedule: list[str],
     goal: str,
     equipment: str,
+    experience_level: str,
 ):
     """
     Generate every workout in the user's weekly program.
@@ -200,6 +295,7 @@ def generate_program(
             day_name=day_name,
             goal=goal,
             equipment=equipment,
+            experience_level=experience_level,
         )
 
         program.append(workout_day)
