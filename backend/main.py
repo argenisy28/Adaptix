@@ -1,10 +1,22 @@
 from typing import Literal
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
+from psycopg2.errors import UniqueViolation
 
 from backend.recommender import recommend_split
+from backend.user_repository import (
+    create_user,
+    delete_user,
+    get_user_by_id,
+    update_user,
+)
 from backend.workout_generator import generate_program
+
+
+# ---------------------------------------------------------
+# FastAPI application
+# ---------------------------------------------------------
 
 app = FastAPI(
     title="Personalized Workout API",
@@ -12,6 +24,10 @@ app = FastAPI(
     version="0.1.0",
 )
 
+
+# ---------------------------------------------------------
+# Pydantic models
+# ---------------------------------------------------------
 
 class WorkoutRequest(BaseModel):
     goal: Literal[
@@ -40,6 +56,34 @@ class WorkoutRequest(BaseModel):
     ]
 
 
+class UserCreate(BaseModel):
+    name: str = Field(
+        min_length=1,
+        max_length=100,
+    )
+
+    email: str = Field(
+        min_length=3,
+        max_length=255,
+    )
+
+
+class UserUpdate(BaseModel):
+    name: str = Field(
+        min_length=1,
+        max_length=100,
+    )
+
+    email: str = Field(
+        min_length=3,
+        max_length=255,
+    )
+
+
+# ---------------------------------------------------------
+# General API endpoints
+# ---------------------------------------------------------
+
 @app.get("/")
 def root():
     return {
@@ -54,9 +98,118 @@ def health_check():
     }
 
 
+# ---------------------------------------------------------
+# User CRUD endpoints
+# ---------------------------------------------------------
+
+# CREATE
+@app.post("/api/users", status_code=201)
+def create_new_user(user: UserCreate):
+    try:
+        created_user = create_user(
+            name=user.name,
+            email=user.email,
+        )
+
+        return created_user
+
+    except UniqueViolation:
+        raise HTTPException(
+            status_code=409,
+            detail="A user with this email already exists.",
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to create user.",
+        )
+
+
+# READ
+@app.get("/api/users/{user_id}")
+def get_user(user_id: int):
+    try:
+        user = get_user_by_id(user_id)
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to retrieve user.",
+        )
+
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found.",
+        )
+
+    return user
+
+
+# UPDATE
+@app.put("/api/users/{user_id}")
+def update_existing_user(
+    user_id: int,
+    user: UserUpdate,
+):
+    try:
+        updated_user = update_user(
+            user_id=user_id,
+            name=user.name,
+            email=user.email,
+        )
+
+    except UniqueViolation:
+        raise HTTPException(
+            status_code=409,
+            detail="A user with this email already exists.",
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to update user.",
+        )
+
+    if updated_user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found.",
+        )
+
+    return updated_user
+
+
+# DELETE
+@app.delete("/api/users/{user_id}")
+def delete_existing_user(user_id: int):
+    try:
+        deleted = delete_user(user_id)
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to delete user.",
+        )
+
+    if not deleted:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found.",
+        )
+
+    return {
+        "message": "User deleted successfully."
+    }
+
+
+# ---------------------------------------------------------
+# Workout endpoints
+# ---------------------------------------------------------
+
 @app.post("/api/workouts/preview")
 def preview_workout(request: WorkoutRequest):
-
     recommended_split = recommend_split(
         goal=request.goal,
         experience_level=request.experience_level,
