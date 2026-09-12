@@ -1,4 +1,4 @@
-# Personalized Workout Application
+# Adaptix
 
 A full-stack fitness application that generates personalized workout programs based on a user's fitness goal, training experience, available equipment, and weekly training frequency.
 
