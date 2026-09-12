@@ -345,14 +345,12 @@ function App() {
       <header className="header">
 
         <h1>
-          Personalized Workout App
+          Adaptix
         </h1>
 
         <p>
-          Generate a training program
-          based on your goals,
-          experience, schedule, and
-          equipment.
+          Training built around your goals, experience,
+          schedule, and available equipment.
         </p>
 
         <span className="backend-status">

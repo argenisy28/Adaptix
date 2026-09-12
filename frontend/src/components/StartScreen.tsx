@@ -75,11 +75,11 @@ function StartScreen({
 
       <section className="start-card">
 
-        <h1>Personalized Workout App</h1>
+        <h1>Adaptix</h1>
 
         <p>
-          Tell us who you are to create or access
-          your workout profile.
+          Your training starts here. Access your profile
+          or create one to build a personalized program.
         </p>
 
 
