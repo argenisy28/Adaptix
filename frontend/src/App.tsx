@@ -1,4 +1,9 @@
-import { useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+
 import type { FormEvent } from "react";
 
 import "./App.css";
@@ -42,7 +47,7 @@ function App() {
       }
 
       try {
-        return JSON.parse(storedUser);
+        return JSON.parse(storedUser) as User;
       } catch {
         return null;
       }
@@ -87,8 +92,12 @@ function App() {
   // Generated workout
   // ----------------------------------------------------
 
-  const [workout, setWorkout] =
-    useState<WorkoutResponse | null>(null);
+  const [
+    workout,
+    setWorkout,
+  ] = useState<WorkoutResponse | null>(
+    null
+  );
 
 
   // ----------------------------------------------------
@@ -105,8 +114,10 @@ function App() {
   // Loading states
   // ----------------------------------------------------
 
-  const [loading, setLoading] =
-    useState(false);
+  const [
+    loading,
+    setLoading,
+  ] = useState(false);
 
   const [
     loadingSaved,
@@ -123,8 +134,10 @@ function App() {
   // Error states
   // ----------------------------------------------------
 
-  const [error, setError] =
-    useState("");
+  const [
+    error,
+    setError,
+  ] = useState("");
 
   const [
     savedError,
@@ -176,6 +189,7 @@ function App() {
 
     setWorkout(null);
     setSavedPrograms([]);
+
     setError("");
     setSavedError("");
   }
@@ -199,54 +213,119 @@ function App() {
 
 
   // ----------------------------------------------------
-  // Load saved workout programs
+  // Fetch saved programs from backend
   // ----------------------------------------------------
 
-  async function loadSavedPrograms() {
+  const fetchSavedPrograms =
+    useCallback(
+      async (): Promise<SavedProgram[]> => {
+        if (!currentUser) {
+          return [];
+        }
+
+        const response = await fetch(
+          `http://127.0.0.1:8000/api/users/${currentUser.id}/workouts`
+        );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.detail ||
+              "Unable to load saved programs."
+          );
+        }
+
+        const savedData =
+          data as SavedProgramsResponse;
+
+        return savedData.programs;
+      },
+      [currentUser]
+    );
+
+
+  // ----------------------------------------------------
+  // Manual saved-program refresh
+  // ----------------------------------------------------
+
+  const loadSavedPrograms =
+    useCallback(
+      async () => {
+        setLoadingSaved(true);
+        setSavedError("");
+
+        try {
+          const programs =
+            await fetchSavedPrograms();
+
+          setSavedPrograms(
+            programs
+          );
+
+        } catch (err) {
+          if (err instanceof Error) {
+            setSavedError(
+              err.message
+            );
+          } else {
+            setSavedError(
+              "Unable to load saved programs."
+            );
+          }
+
+        } finally {
+          setLoadingSaved(false);
+        }
+      },
+      [fetchSavedPrograms]
+    );
+
+
+  // ----------------------------------------------------
+  // Automatically load programs
+  // when active profile changes
+  // ----------------------------------------------------
+
+  useEffect(() => {
     if (!currentUser) {
       return;
     }
 
-    setLoadingSaved(true);
-    setSavedError("");
+    let cancelled = false;
 
-    try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/users/${currentUser.id}/workouts`
-      );
+    fetchSavedPrograms()
+      .then((programs) => {
+        if (!cancelled) {
+          setSavedPrograms(
+            programs
+          );
 
-      const data =
-        await response.json();
+          setSavedError("");
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          if (err instanceof Error) {
+            setSavedError(
+              err.message
+            );
+          } else {
+            setSavedError(
+              "Unable to load saved programs."
+            );
+          }
+        }
+      });
 
-      if (!response.ok) {
-        throw new Error(
-          data.detail ||
-          "Unable to load saved programs."
-        );
-      }
-
-      const savedData =
-        data as SavedProgramsResponse;
-
-      setSavedPrograms(
-        savedData.programs
-      );
-
-    } catch (err) {
-      if (err instanceof Error) {
-        setSavedError(
-          err.message
-        );
-      } else {
-        setSavedError(
-          "Unable to load saved programs."
-        );
-      }
-
-    } finally {
-      setLoadingSaved(false);
-    }
-  }
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    currentUser,
+    fetchSavedPrograms,
+  ]);
 
 
   // ----------------------------------------------------
@@ -289,12 +368,10 @@ function App() {
       if (!response.ok) {
         throw new Error(
           data.detail ||
-          "Unable to delete workout program."
+            "Unable to delete workout program."
         );
       }
 
-      // Remove the program from React immediately
-      // after PostgreSQL successfully deletes it.
       setSavedPrograms(
         (previousPrograms) =>
           previousPrograms.filter(
@@ -303,8 +380,6 @@ function App() {
           )
       );
 
-      // If the program currently being shown
-      // was deleted, remove it from the screen too.
       if (
         workout?.program_id ===
         programId
@@ -345,9 +420,7 @@ function App() {
     }
 
     setLoading(true);
-
     setError("");
-
     setWorkout(null);
 
     try {
@@ -386,7 +459,7 @@ function App() {
       if (!response.ok) {
         throw new Error(
           data.detail ||
-          "Unable to generate workout."
+            "Unable to generate workout."
         );
       }
 
@@ -394,8 +467,8 @@ function App() {
         data as WorkoutResponse
       );
 
-      // Refresh saved programs automatically
-      // after generating a new program.
+      // Refresh saved programs after
+      // creating a new program.
       await loadSavedPrograms();
 
     } catch (err) {
@@ -431,24 +504,20 @@ function App() {
 
 
   // ----------------------------------------------------
-  // Main application
+  // Main Adaptix application
   // ----------------------------------------------------
 
   return (
     <main className="app">
 
-      {/* ----------------------------------------------
-          Top Navigation
-      ---------------------------------------------- */}
+      {/* Top Navigation */}
 
       <TopNav
         user={currentUser}
       />
 
 
-      {/* ----------------------------------------------
-          Hero / Header
-      ---------------------------------------------- */}
+      {/* Hero / Header */}
 
       <header className="header">
 
@@ -457,16 +526,14 @@ function App() {
         </h1>
 
         <p>
-          Training built around your
-          goals, experience, schedule,
-          and available equipment.
+          Training built around your goals,
+          experience, schedule, and available
+          equipment.
         </p>
-
 
         <span className="backend-status">
           {backendStatus}
         </span>
-
 
         <ProfileBar
           user={currentUser}
@@ -478,9 +545,7 @@ function App() {
       </header>
 
 
-      {/* ----------------------------------------------
-          Workout Generator
-      ---------------------------------------------- */}
+      {/* Workout Generator */}
 
       <WorkoutForm
         programName={
@@ -540,9 +605,7 @@ function App() {
       )}
 
 
-      {/* ----------------------------------------------
-          Newly Generated Workout
-      ---------------------------------------------- */}
+      {/* Newly Generated Workout */}
 
       {workout && (
 
@@ -553,7 +616,7 @@ function App() {
           </h2>
 
 
-          {/* Program information badges */}
+          {/* Program badges */}
 
           <div className="program-badges">
 
@@ -565,7 +628,6 @@ function App() {
               }
             </span>
 
-
             <span>
               {
                 goal.replace(
@@ -575,16 +637,13 @@ function App() {
               }
             </span>
 
-
             <span>
               {experienceLevel}
             </span>
 
-
             <span>
               {daysPerWeek} Days
             </span>
-
 
             <span>
               {
@@ -597,6 +656,8 @@ function App() {
 
           </div>
 
+
+          {/* Recommendation summary */}
 
           <div className="program-summary">
 
@@ -612,7 +673,6 @@ function App() {
               }
             </p>
 
-
             <p>
               {
                 workout
@@ -620,7 +680,6 @@ function App() {
                   .reason
               }
             </p>
-
 
             <p>
               <strong>
@@ -634,6 +693,8 @@ function App() {
 
           </div>
 
+
+          {/* Workout days */}
 
           <div className="workout-grid">
 
@@ -692,9 +753,7 @@ function App() {
       )}
 
 
-      {/* ----------------------------------------------
-          Saved Programs
-      ---------------------------------------------- */}
+      {/* Saved Programs */}
 
       <SavedPrograms
         userName={

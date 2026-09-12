@@ -7,8 +7,11 @@ import type {
 
 type SavedProgramsProps = {
   userName: string;
+
   programs: SavedProgram[];
+
   loading: boolean;
+
   error: string;
 
   deletingProgramId: number | null;
@@ -39,6 +42,7 @@ function SavedPrograms({
       <div className="saved-header">
 
         <div>
+
           <h2>
             Saved Programs
           </h2>
@@ -47,6 +51,7 @@ function SavedPrograms({
             View saved workout programs for{" "}
             {userName}.
           </p>
+
         </div>
 
 
@@ -91,6 +96,7 @@ function SavedPrograms({
               <summary className="saved-program-summary">
 
                 <div>
+
                   <h3>
                     {program.program_name}
                   </h3>
@@ -103,6 +109,7 @@ function SavedPrograms({
                       " "
                     )}
                   </p>
+
                 </div>
 
 
