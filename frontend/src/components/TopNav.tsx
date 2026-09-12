@@ -1,4 +1,6 @@
-import type { User } from "../types/workout";
+import type {
+  User,
+} from "../types/workout";
 
 
 type TopNavProps = {
@@ -10,7 +12,10 @@ function TopNav({
   user,
 }: TopNavProps) {
   const firstLetter =
-    user.name.charAt(0).toUpperCase();
+    user.name
+      .charAt(0)
+      .toUpperCase();
+
 
   return (
     <nav className="top-nav">
@@ -31,6 +36,10 @@ function TopNav({
 
         <a href="#programs">
           Programs
+        </a>
+
+        <a href="#history">
+          History
         </a>
 
       </div>

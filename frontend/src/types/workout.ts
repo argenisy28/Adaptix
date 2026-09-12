@@ -71,3 +71,59 @@ export type SavedProgramsResponse = {
   user_id: number;
   programs: SavedProgram[];
 };
+
+export type WorkoutSession = {
+  id: number;
+  user_id: number;
+  program_id: number | null;
+  workout_day_id: number | null;
+  program_name: string;
+  day_name: string;
+  started_at: string;
+  completed_at: string | null;
+  notes: string | null;
+};
+
+export type StartWorkoutSessionResponse = {
+  message: string;
+  session: WorkoutSession;
+};
+
+export type WorkoutSetLog = {
+  id: number;
+  session_id: number;
+  workout_exercise_id: number | null;
+  exercise_name: string;
+  set_number: number;
+  weight: number | null;
+  weight_unit: "lb" | "kg";
+  reps: number | null;
+  completed: boolean;
+  created_at: string;
+};
+
+export type WorkoutSetLogResponse = {
+  message: string;
+  set: WorkoutSetLog;
+};
+
+export type CompleteWorkoutSessionResponse = {
+  message: string;
+  session: WorkoutSession;
+};
+
+export type ActiveWorkout = {
+  session: WorkoutSession;
+  program: SavedProgram;
+  day: SavedWorkoutDay;
+};
+
+export type WorkoutHistorySession =
+  WorkoutSession & {
+    sets: WorkoutSetLog[];
+  };
+
+export type WorkoutHistoryResponse = {
+  user_id: number;
+  sessions: WorkoutHistorySession[];
+};

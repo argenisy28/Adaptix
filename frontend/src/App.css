@@ -1402,3 +1402,1057 @@ button:hover:not(:disabled) {
     border-radius: 20px;
   }
 }
+
+/* ======================================================
+   SAVED WORKOUT DAY
+====================================================== */
+
+.saved-workout-day {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.saved-workout-day .workout-card {
+  flex: 1;
+}
+
+
+/* ======================================================
+   START WORKOUT BUTTON
+====================================================== */
+
+.start-workout-button {
+  width: 100%;
+
+  min-height: 46px;
+
+  padding: 12px 16px;
+
+  border: 1px solid
+    rgba(92, 255, 139, 0.35);
+
+  border-radius: 11px;
+
+  background:
+    rgba(92, 255, 139, 0.08);
+
+  color: #9dffb9;
+
+  font-size: 0.88rem;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.start-workout-button:hover {
+  transform:
+    translateY(-1px);
+
+  background:
+    rgba(92, 255, 139, 0.15);
+
+  border-color:
+    rgba(92, 255, 139, 0.65);
+
+  color: #d1ffdd;
+}
+
+.start-workout-button:active {
+  transform:
+    translateY(0);
+}
+
+
+/* ======================================================
+   WORKOUT TRACKER
+====================================================== */
+
+.workout-tracker {
+  margin-top: 10px;
+  margin-bottom: 80px;
+
+  padding: 34px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #15191e,
+      #0f1216
+    );
+
+  border:
+    1px solid #292f36;
+
+  border-radius: 24px;
+
+  box-shadow:
+    0 22px 60px
+    rgba(0, 0, 0, 0.32);
+}
+
+
+/* ======================================================
+   TRACKER HEADER
+====================================================== */
+
+.tracker-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  margin-bottom: 20px;
+}
+
+.tracker-header h2 {
+  margin: 8px 0 4px;
+
+  font-size: 2rem;
+
+  letter-spacing: -0.04em;
+}
+
+.tracker-header p {
+  margin: 0;
+
+  color: #8f99a3;
+
+  font-size: 0.95rem;
+}
+
+.tracker-label {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 6px 10px;
+
+  border:
+    1px solid
+    rgba(92, 255, 139, 0.25);
+
+  border-radius: 999px;
+
+  background:
+    rgba(92, 255, 139, 0.07);
+
+  color: #aaffc1;
+
+  font-size: 0.72rem;
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.08em;
+}
+
+
+/* ======================================================
+   TRACKER CLOSE BUTTON
+====================================================== */
+
+.tracker-cancel-button {
+  flex-shrink: 0;
+
+  padding: 10px 15px;
+
+  border:
+    1px solid #373e45;
+
+  border-radius: 10px;
+
+  background: #171b20;
+
+  color: #d5d9dd;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.tracker-cancel-button:hover {
+  background: #20252b;
+
+  border-color: #59626b;
+}
+
+
+/* ======================================================
+   TRACKER SESSION INFORMATION
+====================================================== */
+
+.tracker-session-info {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 10px;
+
+  margin-bottom: 30px;
+}
+
+.tracker-session-info span {
+  padding: 7px 11px;
+
+  border:
+    1px solid #2d343a;
+
+  border-radius: 999px;
+
+  background: #101317;
+
+  color: #909aa4;
+
+  font-size: 0.77rem;
+  font-weight: 700;
+}
+
+
+/* ======================================================
+   TRACKER EXERCISE LIST
+====================================================== */
+
+.tracker-exercises {
+  display: grid;
+
+  gap: 24px;
+}
+
+
+/* ======================================================
+   TRACKER EXERCISE CARD
+====================================================== */
+
+.tracker-exercise {
+  overflow: hidden;
+
+  background: #111418;
+
+  border:
+    1px solid #282e35;
+
+  border-radius: 18px;
+}
+
+.tracker-exercise-header {
+  padding: 22px 24px;
+
+  border-bottom:
+    1px solid #262c32;
+
+  background:
+    linear-gradient(
+      135deg,
+      #181d22,
+      #14181d
+    );
+}
+
+.tracker-exercise-header h3 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 1.15rem;
+
+  letter-spacing: -0.02em;
+}
+
+.tracker-exercise-header p {
+  margin: 6px 0 0;
+
+  color: #858f99;
+
+  font-size: 0.84rem;
+}
+
+
+/* ======================================================
+   TRACKER SET TABLE
+====================================================== */
+
+.tracker-set-table {
+  padding: 10px 18px 18px;
+}
+
+.tracker-set-heading,
+.tracker-set-row {
+  display: grid;
+
+  grid-template-columns:
+    70px
+    minmax(130px, 1fr)
+    minmax(100px, 0.7fr)
+    minmax(120px, 0.8fr);
+
+  align-items: center;
+
+  gap: 14px;
+}
+
+.tracker-set-heading {
+  padding: 10px 8px;
+
+  color: #737e88;
+
+  font-size: 0.72rem;
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+}
+
+.tracker-set-row {
+  padding: 12px 8px;
+
+  border-top:
+    1px solid #252b31;
+}
+
+.tracker-set-row strong {
+  color: #f4f6f7;
+
+  font-size: 0.92rem;
+}
+
+
+/* ======================================================
+   TRACKER INPUTS
+====================================================== */
+
+.tracker-set-row input,
+.tracker-notes textarea {
+  width: 100%;
+
+  border:
+    1px solid #30363d;
+
+  border-radius: 9px;
+
+  background: #0c0f12;
+
+  color: #f4f6f7;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.tracker-set-row input {
+  min-height: 42px;
+
+  padding: 10px 11px;
+}
+
+.tracker-set-row input:hover,
+.tracker-notes textarea:hover {
+  border-color: #444c55;
+}
+
+.tracker-set-row input:focus,
+.tracker-notes textarea:focus {
+  border-color: #5cff8b;
+
+  background: #101419;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(92, 255, 139, 0.1);
+}
+
+.tracker-set-row input:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+
+/* ======================================================
+   WEIGHT INPUT
+====================================================== */
+
+.tracker-input-group {
+  position: relative;
+}
+
+.tracker-input-group input {
+  padding-right: 42px;
+}
+
+.tracker-input-group span {
+  position: absolute;
+
+  top: 50%;
+  right: 12px;
+
+  transform:
+    translateY(-50%);
+
+  color: #68727c;
+
+  font-size: 0.75rem;
+  font-weight: 800;
+
+  pointer-events: none;
+}
+
+
+/* ======================================================
+   SAVE SET BUTTON
+====================================================== */
+
+.save-set-button,
+.set-saved-button {
+  min-height: 42px;
+
+  padding: 9px 12px;
+
+  border-radius: 9px;
+
+  font-size: 0.78rem;
+  font-weight: 800;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.save-set-button {
+  border:
+    1px solid
+    rgba(92, 255, 139, 0.32);
+
+  background:
+    rgba(92, 255, 139, 0.08);
+
+  color: #9dffb9;
+
+  cursor: pointer;
+}
+
+.save-set-button:hover:not(:disabled) {
+  transform:
+    translateY(-1px);
+
+  background:
+    rgba(92, 255, 139, 0.15);
+
+  border-color:
+    rgba(92, 255, 139, 0.6);
+}
+
+.save-set-button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+.set-saved-button {
+  border:
+    1px solid
+    rgba(92, 255, 139, 0.18);
+
+  background:
+    rgba(92, 255, 139, 0.06);
+
+  color: #72d98f;
+
+  cursor: default;
+}
+
+
+/* ======================================================
+   WORKOUT NOTES
+====================================================== */
+
+.tracker-notes {
+  margin-top: 28px;
+}
+
+.tracker-notes label {
+  display: grid;
+
+  gap: 10px;
+
+  color: #c8ced4;
+
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.tracker-notes textarea {
+  min-height: 110px;
+
+  padding: 14px;
+
+  resize: vertical;
+
+  font-family: inherit;
+
+  line-height: 1.5;
+}
+
+
+/* ======================================================
+   TRACKER FOOTER
+====================================================== */
+
+.tracker-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  margin-top: 30px;
+
+  padding-top: 24px;
+
+  border-top:
+    1px solid #292f35;
+
+  color: #939da7;
+
+  font-size: 0.88rem;
+}
+
+.tracker-footer strong {
+  color: #ffffff;
+}
+
+
+/* ======================================================
+   FINISH WORKOUT BUTTON
+====================================================== */
+
+.finish-workout-button {
+  min-height: 48px;
+
+  padding: 12px 22px;
+
+  border: none;
+
+  border-radius: 11px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #5cff8b,
+      #29df68
+    );
+
+  color: #07120b;
+
+  font-size: 0.9rem;
+  font-weight: 900;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 30px
+    rgba(92, 255, 139, 0.14);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.finish-workout-button:hover:not(:disabled) {
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 14px 34px
+    rgba(92, 255, 139, 0.22);
+}
+
+.finish-workout-button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+
+/* ======================================================
+   WORKOUT TRACKER RESPONSIVE
+====================================================== */
+
+@media (max-width: 760px) {
+  .workout-tracker {
+    padding: 24px;
+  }
+
+  .tracker-set-heading {
+    display: none;
+  }
+
+  .tracker-set-row {
+    grid-template-columns:
+      42px 1fr 1fr;
+
+    gap: 10px;
+  }
+
+  .tracker-set-row
+  button {
+    grid-column:
+      2 / -1;
+  }
+}
+
+
+@media (max-width: 520px) {
+  .workout-tracker {
+    padding:
+      22px 18px;
+
+    border-radius: 18px;
+  }
+
+  .tracker-header {
+    flex-direction: column;
+  }
+
+  .tracker-cancel-button {
+    width: 100%;
+  }
+
+  .tracker-set-table {
+    padding:
+      8px 12px 14px;
+  }
+
+  .tracker-set-row {
+    grid-template-columns:
+      34px 1fr;
+
+    padding:
+      14px 4px;
+  }
+
+  .tracker-input-group {
+    grid-column: 2;
+  }
+
+  .tracker-set-row
+  > input {
+    grid-column: 2;
+  }
+
+  .tracker-set-row
+  button {
+    grid-column: 2;
+
+    width: 100%;
+  }
+
+  .tracker-footer {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .finish-workout-button {
+    width: 100%;
+  }
+}
+
+/* ======================================================
+   WORKOUT HISTORY
+====================================================== */
+
+.history-section {
+  margin-top: 72px;
+  margin-bottom: 80px;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  margin-bottom: 28px;
+}
+
+.history-header h2 {
+  margin: 0;
+
+  font-size: 2rem;
+
+  letter-spacing: -0.04em;
+}
+
+.history-header p {
+  margin: 7px 0 0;
+
+  color: #8f99a3;
+}
+
+.history-header button {
+  flex-shrink: 0;
+
+  padding: 12px 17px;
+
+  border:
+    1px solid #343b42;
+
+  border-radius: 10px;
+
+  background: #171b20;
+
+  color: #f1f3f5;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.history-header
+button:hover:not(:disabled) {
+  transform:
+    translateY(-1px);
+
+  border-color: #5cff8b;
+
+  background: #1e242a;
+}
+
+.history-header button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+
+/* EMPTY HISTORY */
+
+.history-empty {
+  padding: 32px;
+
+  text-align: center;
+
+  background: #111418;
+
+  border:
+    1px solid #252b31;
+
+  border-radius: 18px;
+}
+
+.history-empty h3 {
+  margin:
+    0 0 8px;
+
+  color: #ffffff;
+}
+
+.history-empty p {
+  margin: 0;
+
+  color: #858f99;
+}
+
+
+/* HISTORY LIST */
+
+.history-list {
+  display: grid;
+
+  gap: 18px;
+}
+
+
+/* SESSION */
+
+.history-session {
+  padding: 26px;
+
+  background: #111418;
+
+  border:
+    1px solid #252b31;
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 16px 45px
+    rgba(0, 0, 0, 0.16);
+}
+
+.history-session summary {
+  list-style: none;
+}
+
+.history-session
+summary::-webkit-details-marker {
+  display: none;
+}
+
+
+/* SESSION SUMMARY */
+
+.history-session-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  cursor: pointer;
+}
+
+.history-session-summary h3 {
+  margin:
+    8px 0 3px;
+
+  color: #ffffff;
+
+  font-size: 1.28rem;
+}
+
+.history-session-summary p {
+  margin: 0;
+
+  color: #7f8993;
+
+  font-size: 0.88rem;
+}
+
+.history-status {
+  display: inline-flex;
+
+  padding: 5px 9px;
+
+  border:
+    1px solid
+    rgba(92, 255, 139, 0.24);
+
+  border-radius: 999px;
+
+  background:
+    rgba(92, 255, 139, 0.07);
+
+  color: #9dffb9;
+
+  font-size: 0.68rem;
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+}
+
+.history-summary-meta {
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+
+  gap: 8px;
+
+  color: #818b95;
+
+  font-size: 0.8rem;
+}
+
+.history-expand-label {
+  color: #5cff8b;
+
+  font-weight: 800;
+}
+
+.history-session[open]
+.history-expand-label {
+  font-size: 0;
+}
+
+.history-session[open]
+.history-expand-label::after {
+  content:
+    "Hide Workout";
+
+  font-size: 0.8rem;
+}
+
+
+/* SESSION META */
+
+.history-session-meta {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 9px;
+
+  margin:
+    24px 0;
+}
+
+.history-session-meta span {
+  padding: 7px 11px;
+
+  background: #191d22;
+
+  border:
+    1px solid #30373e;
+
+  border-radius: 999px;
+
+  color: #aeb6bf;
+
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+
+/* EXERCISES */
+
+.history-exercises {
+  display: grid;
+
+  gap: 14px;
+}
+
+.history-exercise {
+  padding: 18px;
+
+  background: #0d1013;
+
+  border:
+    1px solid #282e34;
+
+  border-radius: 13px;
+}
+
+.history-exercise h4 {
+  margin:
+    0 0 14px;
+
+  color: #ffffff;
+
+  font-size: 0.95rem;
+}
+
+
+/* LOGGED SETS */
+
+.history-set-list {
+  display: grid;
+
+  gap: 8px;
+}
+
+.history-set {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding:
+    9px 11px;
+
+  background: #14181c;
+
+  border:
+    1px solid #252b31;
+
+  border-radius: 9px;
+
+  color: #8f99a3;
+
+  font-size: 0.82rem;
+}
+
+.history-set strong {
+  color: #e6eaed;
+}
+
+
+/* NOTES */
+
+.history-notes {
+  margin-top: 20px;
+
+  padding: 16px;
+
+  border-left:
+    3px solid #5cff8b;
+
+  background:
+    rgba(92, 255, 139, 0.04);
+
+  border-radius:
+    0 10px 10px 0;
+}
+
+.history-notes strong {
+  color: #ffffff;
+
+  font-size: 0.82rem;
+}
+
+.history-notes p {
+  margin:
+    7px 0 0;
+
+  color: #929ca5;
+
+  line-height: 1.55;
+}
+
+.history-no-sets {
+  margin: 0;
+
+  color: #858f99;
+}
+
+
+/* RESPONSIVE HISTORY */
+
+@media (max-width: 700px) {
+  .history-header {
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+  }
+
+  .history-header button {
+    width: 100%;
+  }
+
+  .history-session-summary {
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+  }
+
+  .history-summary-meta {
+    align-items:
+      flex-start;
+  }
+}

@@ -2,6 +2,7 @@ import WorkoutCard from "./WorkoutCard";
 
 import type {
   SavedProgram,
+  SavedWorkoutDay,
 } from "../types/workout";
 
 
@@ -21,6 +22,11 @@ type SavedProgramsProps = {
   onDeleteProgram: (
     programId: number
   ) => void;
+
+  onStartWorkout: (
+    program: SavedProgram,
+    day: SavedWorkoutDay
+  ) => void;
 };
 
 
@@ -32,6 +38,7 @@ function SavedPrograms({
   deletingProgramId,
   onLoadPrograms,
   onDeleteProgram,
+  onStartWorkout,
 }: SavedProgramsProps) {
   return (
     <section
@@ -183,36 +190,55 @@ function SavedPrograms({
                 {program.workout_days.map(
                   (day) => (
 
-                    <WorkoutCard
+                    <div
+                      className="saved-workout-day"
                       key={day.id}
+                    >
 
-                      title={
-                        `Day ${day.day_number}: ${day.day_name}`
-                      }
+                      <WorkoutCard
+                        title={
+                          `Day ${day.day_number}: ${day.day_name}`
+                        }
 
-                      exercises={
-                        day.exercises.map(
-                          (exercise) => ({
-                            id:
-                              exercise.id,
+                        exercises={
+                          day.exercises.map(
+                            (exercise) => ({
+                              id:
+                                exercise.id,
 
-                            name:
-                              exercise
-                                .exercise_name,
+                              name:
+                                exercise
+                                  .exercise_name,
 
-                            sets:
-                              exercise.sets,
+                              sets:
+                                exercise.sets,
 
-                            reps:
-                              exercise.reps,
+                              reps:
+                                exercise.reps,
 
-                            restSeconds:
-                              exercise
-                                .rest_seconds,
-                          })
-                        )
-                      }
-                    />
+                              restSeconds:
+                                exercise
+                                  .rest_seconds,
+                            })
+                          )
+                        }
+                      />
+
+
+                      <button
+                        type="button"
+                        className="start-workout-button"
+                        onClick={() =>
+                          onStartWorkout(
+                            program,
+                            day
+                          )
+                        }
+                      >
+                        Start Workout
+                      </button>
+
+                    </div>
 
                   )
                 )}
