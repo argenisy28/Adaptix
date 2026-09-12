@@ -3,81 +3,33 @@ import type { FormEvent } from "react";
 
 import "./App.css";
 
+import ProfileBar from "./components/ProfileBar";
 import StartScreen from "./components/StartScreen";
-import type { User } from "./components/StartScreen";
+import WorkoutCard from "./components/WorkoutCard";
+import WorkoutForm from "./components/WorkoutForm";
+import SavedPrograms from "./components/SavedPrograms";
 
-
-type Exercise = {
-  exercise: string;
-  movement_pattern: string;
-  sets: number;
-  reps: string;
-  rest_seconds: number;
-};
-
-
-type WorkoutDay = {
-  day_name: string;
-  exercises: Exercise[];
-};
-
-
-type WorkoutResponse = {
-  message: string;
-  program_id: number;
-  user_id: number;
-  program_name: string;
-
-  recommendation: {
-    split_name: string;
-    reason: string;
-  };
-
-  workouts: WorkoutDay[];
-};
-
-
-type SavedExercise = {
-  id: number;
-  exercise_name: string;
-  movement_pattern: string;
-  sets: number;
-  reps: string;
-  rest_seconds: number;
-  exercise_order: number;
-};
-
-
-type SavedWorkoutDay = {
-  id: number;
-  day_number: number;
-  day_name: string;
-  exercises: SavedExercise[];
-};
-
-
-type SavedProgram = {
-  id: number;
-  program_name: string;
-  goal: string;
-  experience_level: string;
-  days_per_week: number;
-  equipment: string;
-  created_at: string;
-  workout_days: SavedWorkoutDay[];
-};
-
-
-type SavedProgramsResponse = {
-  user_id: number;
-  programs: SavedProgram[];
-};
+import type {
+  SavedProgram,
+  SavedProgramsResponse,
+  User,
+  WorkoutResponse,
+} from "./types/workout";
 
 
 function App() {
+  // ----------------------------------------------------
+  // Backend status
+  // ----------------------------------------------------
+
   const [backendStatus, setBackendStatus] = useState(
     "Connecting to backend..."
   );
+
+
+  // ----------------------------------------------------
+  // Current user
+  // ----------------------------------------------------
 
   const [currentUser, setCurrentUser] =
     useState<User | null>(() => {
@@ -95,34 +47,83 @@ function App() {
       }
     });
 
+
+  // ----------------------------------------------------
+  // Workout form state
+  // ----------------------------------------------------
+
   const [programName, setProgramName] = useState(
     "My Workout Program"
   );
 
-  const [goal, setGoal] = useState("strength");
+  const [goal, setGoal] = useState(
+    "strength"
+  );
 
-  const [experienceLevel, setExperienceLevel] =
-    useState("intermediate");
+  const [
+    experienceLevel,
+    setExperienceLevel,
+  ] = useState(
+    "intermediate"
+  );
 
-  const [daysPerWeek, setDaysPerWeek] = useState(4);
+  const [
+    daysPerWeek,
+    setDaysPerWeek,
+  ] = useState(
+    4
+  );
 
-  const [equipment, setEquipment] =
-    useState("full_gym");
+  const [
+    equipment,
+    setEquipment,
+  ] = useState(
+    "full_gym"
+  );
+
+
+  // ----------------------------------------------------
+  // Generated workout
+  // ----------------------------------------------------
 
   const [workout, setWorkout] =
     useState<WorkoutResponse | null>(null);
 
-  const [savedPrograms, setSavedPrograms] =
-    useState<SavedProgram[]>([]);
 
-  const [loading, setLoading] = useState(false);
+  // ----------------------------------------------------
+  // Saved programs
+  // ----------------------------------------------------
 
-  const [loadingSaved, setLoadingSaved] =
+  const [
+    savedPrograms,
+    setSavedPrograms,
+  ] = useState<SavedProgram[]>([]);
+
+
+  // ----------------------------------------------------
+  // Loading states
+  // ----------------------------------------------------
+
+  const [loading, setLoading] =
     useState(false);
 
-  const [error, setError] = useState("");
+  const [
+    loadingSaved,
+    setLoadingSaved,
+  ] = useState(false);
 
-  const [savedError, setSavedError] = useState("");
+
+  // ----------------------------------------------------
+  // Error states
+  // ----------------------------------------------------
+
+  const [error, setError] =
+    useState("");
+
+  const [
+    savedError,
+    setSavedError,
+  ] = useState("");
 
 
   // ----------------------------------------------------
@@ -130,7 +131,9 @@ function App() {
   // ----------------------------------------------------
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/health")
+    fetch(
+      "http://127.0.0.1:8000/health"
+    )
       .then((response) => {
         if (!response.ok) {
           throw new Error();
@@ -155,7 +158,9 @@ function App() {
   // User profile handling
   // ----------------------------------------------------
 
-  function handleUserReady(user: User) {
+  function handleUserReady(
+    user: User
+  ) {
     localStorage.setItem(
       "workoutUser",
       JSON.stringify(user)
@@ -166,7 +171,9 @@ function App() {
 
 
   function handleSignOut() {
-    localStorage.removeItem("workoutUser");
+    localStorage.removeItem(
+      "workoutUser"
+    );
 
     setCurrentUser(null);
     setWorkout(null);
@@ -177,7 +184,7 @@ function App() {
 
 
   // ----------------------------------------------------
-  // Retrieve saved programs
+  // Load saved workout programs
   // ----------------------------------------------------
 
   async function loadSavedPrograms() {
@@ -193,7 +200,8 @@ function App() {
         `http://127.0.0.1:8000/api/users/${currentUser.id}/workouts`
       );
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       if (!response.ok) {
         throw new Error(
@@ -205,11 +213,15 @@ function App() {
       const savedData =
         data as SavedProgramsResponse;
 
-      setSavedPrograms(savedData.programs);
+      setSavedPrograms(
+        savedData.programs
+      );
 
     } catch (err) {
       if (err instanceof Error) {
-        setSavedError(err.message);
+        setSavedError(
+          err.message
+        );
       } else {
         setSavedError(
           "Unable to load saved programs."
@@ -246,20 +258,31 @@ function App() {
           method: "POST",
 
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
           },
 
           body: JSON.stringify({
-            program_name: programName,
-            goal: goal,
-            experience_level: experienceLevel,
-            days_per_week: daysPerWeek,
-            equipment: equipment,
+            program_name:
+              programName,
+
+            goal:
+              goal,
+
+            experience_level:
+              experienceLevel,
+
+            days_per_week:
+              daysPerWeek,
+
+            equipment:
+              equipment,
           }),
         }
       );
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       if (!response.ok) {
         throw new Error(
@@ -268,15 +291,23 @@ function App() {
         );
       }
 
-      setWorkout(data);
+      setWorkout(
+        data as WorkoutResponse
+      );
 
+      // Refresh saved programs automatically
+      // after generating a new one.
       await loadSavedPrograms();
 
     } catch (err) {
       if (err instanceof Error) {
-        setError(err.message);
+        setError(
+          err.message
+        );
       } else {
-        setError("Something went wrong.");
+        setError(
+          "Something went wrong."
+        );
       }
 
     } finally {
@@ -286,13 +317,15 @@ function App() {
 
 
   // ----------------------------------------------------
-  // Show start screen if no profile is selected
+  // Start screen
   // ----------------------------------------------------
 
   if (!currentUser) {
     return (
       <StartScreen
-        onUserReady={handleUserReady}
+        onUserReady={
+          handleUserReady
+        }
       />
     );
   }
@@ -305,6 +338,10 @@ function App() {
   return (
     <main className="app">
 
+      {/* ----------------------------------------------
+          Header
+      ---------------------------------------------- */}
+
       <header className="header">
 
         <h1>
@@ -312,8 +349,10 @@ function App() {
         </h1>
 
         <p>
-          Generate a training program based on your
-          goals, experience, schedule, and equipment.
+          Generate a training program
+          based on your goals,
+          experience, schedule, and
+          equipment.
         </p>
 
         <span className="backend-status">
@@ -321,205 +360,81 @@ function App() {
         </span>
 
 
-        <div className="account-bar">
-
-          <div>
-            <strong>
-              {currentUser.name}
-            </strong>
-
-            <span>
-              {currentUser.email}
-            </span>
-          </div>
-
-
-          <button
-            type="button"
-            onClick={handleSignOut}
-          >
-            Switch Profile
-          </button>
-
-        </div>
+        <ProfileBar
+          user={currentUser}
+          onSwitchProfile={
+            handleSignOut
+          }
+        />
 
       </header>
 
 
-      <section className="generator-section">
+      {/* ----------------------------------------------
+          Workout Generator
+      ---------------------------------------------- */}
 
-        <h2>
-          Build Your Workout
-        </h2>
+      <WorkoutForm
+        programName={
+          programName
+        }
 
+        goal={
+          goal
+        }
 
-        <form
-          className="workout-form"
-          onSubmit={handleSubmit}
-        >
+        experienceLevel={
+          experienceLevel
+        }
 
-          <label>
-            Program Name
+        daysPerWeek={
+          daysPerWeek
+        }
 
-            <input
-              type="text"
-              value={programName}
-              onChange={(event) =>
-                setProgramName(
-                  event.target.value
-                )
-              }
-              required
-            />
-          </label>
+        equipment={
+          equipment
+        }
 
+        loading={
+          loading
+        }
 
-          <label>
-            Goal
+        onProgramNameChange={
+          setProgramName
+        }
 
-            <select
-              value={goal}
-              onChange={(event) =>
-                setGoal(event.target.value)
-              }
-            >
+        onGoalChange={
+          setGoal
+        }
 
-              <option value="strength">
-                Strength
-              </option>
+        onExperienceLevelChange={
+          setExperienceLevel
+        }
 
-              <option value="muscle_gain">
-                Muscle Gain
-              </option>
+        onDaysPerWeekChange={
+          setDaysPerWeek
+        }
 
-              <option value="weight_loss">
-                Weight Loss
-              </option>
+        onEquipmentChange={
+          setEquipment
+        }
 
-              <option value="general_fitness">
-                General Fitness
-              </option>
-
-            </select>
-
-          </label>
+        onSubmit={
+          handleSubmit
+        }
+      />
 
 
-          <label>
-            Experience Level
-
-            <select
-              value={experienceLevel}
-              onChange={(event) =>
-                setExperienceLevel(
-                  event.target.value
-                )
-              }
-            >
-
-              <option value="beginner">
-                Beginner
-              </option>
-
-              <option value="intermediate">
-                Intermediate
-              </option>
-
-              <option value="advanced">
-                Advanced
-              </option>
-
-            </select>
-
-          </label>
+      {error && (
+        <p className="error-message">
+          {error}
+        </p>
+      )}
 
 
-          <label>
-            Training Days Per Week
-
-            <select
-              value={daysPerWeek}
-              onChange={(event) =>
-                setDaysPerWeek(
-                  Number(event.target.value)
-                )
-              }
-            >
-
-              <option value={2}>
-                2 Days
-              </option>
-
-              <option value={3}>
-                3 Days
-              </option>
-
-              <option value={4}>
-                4 Days
-              </option>
-
-              <option value={5}>
-                5 Days
-              </option>
-
-              <option value={6}>
-                6 Days
-              </option>
-
-            </select>
-
-          </label>
-
-
-          <label>
-            Equipment
-
-            <select
-              value={equipment}
-              onChange={(event) =>
-                setEquipment(
-                  event.target.value
-                )
-              }
-            >
-
-              <option value="full_gym">
-                Full Gym
-              </option>
-
-              <option value="home_gym">
-                Home Gym
-              </option>
-
-              <option value="bodyweight">
-                Bodyweight
-              </option>
-
-            </select>
-
-          </label>
-
-
-          <button
-            type="submit"
-            disabled={loading}
-          >
-            {loading
-              ? "Generating..."
-              : "Generate Workout"}
-          </button>
-
-        </form>
-
-
-        {error && (
-          <p className="error-message">
-            {error}
-          </p>
-        )}
-
-      </section>
-
+      {/* ----------------------------------------------
+          Newly Generated Workout
+      ---------------------------------------------- */}
 
       {workout && (
 
@@ -536,24 +451,32 @@ function App() {
               <strong>
                 Split:
               </strong>{" "}
+
               {
-                workout.recommendation
+                workout
+                  .recommendation
                   .split_name
               }
             </p>
 
+
             <p>
               {
-                workout.recommendation
+                workout
+                  .recommendation
                   .reason
               }
             </p>
+
 
             <p>
               <strong>
                 Program ID:
               </strong>{" "}
-              {workout.program_id}
+
+              {
+                workout.program_id
+              }
             </p>
 
           </div>
@@ -562,62 +485,49 @@ function App() {
           <div className="workout-grid">
 
             {workout.workouts.map(
-              (day, dayIndex) => (
+              (
+                day,
+                dayIndex
+              ) => (
 
-                <article
-                  className="workout-card"
-                  key={dayIndex}
-                >
+                <WorkoutCard
+                  key={
+                    dayIndex
+                  }
 
-                  <h3>
-                    Day {dayIndex + 1}:{" "}
-                    {day.day_name}
-                  </h3>
+                  title={
+                    `Day ${
+                      dayIndex + 1
+                    }: ${
+                      day.day_name
+                    }`
+                  }
 
+                  exercises={
+                    day.exercises.map(
+                      (
+                        exercise,
+                        exerciseIndex
+                      ) => ({
+                        id:
+                          exerciseIndex,
 
-                  {day.exercises.map(
-                    (
-                      exercise,
-                      exerciseIndex
-                    ) => (
+                        name:
+                          exercise.exercise,
 
-                      <div
-                        className="exercise"
-                        key={exerciseIndex}
-                      >
+                        sets:
+                          exercise.sets,
 
-                        <h4>
-                          {
-                            exercise.exercise
-                          }
-                        </h4>
+                        reps:
+                          exercise.reps,
 
-                        <p>
-                          {
-                            exercise.sets
-                          }{" "}
-                          sets ×{" "}
-                          {
-                            exercise.reps
-                          }{" "}
-                          reps
-                        </p>
-
-                        <p>
-                          Rest:{" "}
-                          {
-                            exercise
-                              .rest_seconds
-                          }{" "}
-                          sec
-                        </p>
-
-                      </div>
-
+                        restSeconds:
+                          exercise
+                            .rest_seconds,
+                      })
                     )
-                  )}
-
-                </article>
+                  }
+                />
 
               )
             )}
@@ -629,195 +539,17 @@ function App() {
       )}
 
 
-      <section className="saved-section">
+      {/* ----------------------------------------------
+          Saved Programs
+      ---------------------------------------------- */}
 
-        <div className="saved-header">
-
-          <div>
-
-            <h2>
-              Saved Programs
-            </h2>
-
-            <p>
-              View saved workout programs for{" "}
-              {currentUser.name}.
-            </p>
-
-          </div>
-
-
-          <button
-            type="button"
-            onClick={loadSavedPrograms}
-            disabled={loadingSaved}
-          >
-            {loadingSaved
-              ? "Loading..."
-              : "Load Saved Programs"}
-          </button>
-
-        </div>
-
-
-        {savedError && (
-          <p className="error-message">
-            {savedError}
-          </p>
-        )}
-
-
-        {!loadingSaved &&
-          savedPrograms.length === 0 && (
-
-            <p>
-              No saved programs loaded.
-            </p>
-
-          )}
-
-
-        <div className="saved-programs">
-
-          {savedPrograms.map(
-            (program) => (
-
-              <article
-                className="saved-program"
-                key={program.id}
-              >
-
-                <div className="saved-program-title">
-
-                  <div>
-
-                    <h3>
-                      {
-                        program.program_name
-                      }
-                    </h3>
-
-                    <p>
-                      Program #{program.id}
-                    </p>
-
-                  </div>
-
-                </div>
-
-
-                <div className="program-details">
-
-                  <span>
-                    Goal:{" "}
-                    {program.goal.replace(
-                      "_",
-                      " "
-                    )}
-                  </span>
-
-                  <span>
-                    Experience:{" "}
-                    {
-                      program
-                        .experience_level
-                    }
-                  </span>
-
-                  <span>
-                    Days:{" "}
-                    {
-                      program.days_per_week
-                    }
-                  </span>
-
-                  <span>
-                    Equipment:{" "}
-                    {
-                      program.equipment.replace(
-                        "_",
-                        " "
-                      )
-                    }
-                  </span>
-
-                </div>
-
-
-                <div className="workout-grid">
-
-                  {program.workout_days.map(
-                    (day) => (
-
-                      <article
-                        className="workout-card"
-                        key={day.id}
-                      >
-
-                        <h4>
-                          Day{" "}
-                          {day.day_number}:{" "}
-                          {day.day_name}
-                        </h4>
-
-
-                        {day.exercises.map(
-                          (exercise) => (
-
-                            <div
-                              className="exercise"
-                              key={
-                                exercise.id
-                              }
-                            >
-
-                              <strong>
-                                {
-                                  exercise
-                                    .exercise_name
-                                }
-                              </strong>
-
-                              <p>
-                                {
-                                  exercise.sets
-                                }{" "}
-                                sets ×{" "}
-                                {
-                                  exercise.reps
-                                }{" "}
-                                reps
-                              </p>
-
-                              <p>
-                                Rest:{" "}
-                                {
-                                  exercise
-                                    .rest_seconds
-                                }{" "}
-                                sec
-                              </p>
-
-                            </div>
-
-                          )
-                        )}
-
-                      </article>
-
-                    )
-                  )}
-
-                </div>
-
-              </article>
-
-            )
-          )}
-
-        </div>
-
-      </section>
+      <SavedPrograms
+       userName={currentUser.name}
+       programs={savedPrograms}
+       loading={loadingSaved}
+       error={savedError}
+       onLoadPrograms={loadSavedPrograms}
+      />
 
     </main>
   );

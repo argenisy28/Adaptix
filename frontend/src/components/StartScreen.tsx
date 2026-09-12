@@ -1,13 +1,9 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 
+import type { User } from "../types/workout";
 
-export type User = {
-  id: number;
-  name: string;
-  email: string;
-  created_at: string;
-};
+
 
 
 type StartScreenProps = {
