@@ -20,6 +20,12 @@ from backend.user_repository import (
 from backend.workout_generator import generate_program
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.workout_session_repository import (
+    complete_workout_session,
+    create_workout_session,
+    get_workout_sessions_by_user,
+    log_workout_set,
+)
 
 # ---------------------------------------------------------
 # FastAPI application
@@ -112,7 +118,62 @@ class UserUpdate(BaseModel):
         max_length=255,
     )
 
+class WorkoutSessionCreate(BaseModel):
+    program_id: int | None = None
 
+    workout_day_id: int | None = None
+
+    program_name: str = Field(
+        min_length=1,
+        max_length=255,
+    )
+
+    day_name: str = Field(
+        min_length=1,
+        max_length=255,
+    )
+
+    notes: str | None = Field(
+        default=None,
+        max_length=2000,
+    )
+
+
+class WorkoutSetLogCreate(BaseModel):
+    workout_exercise_id: int | None = None
+
+    exercise_name: str = Field(
+        min_length=1,
+        max_length=255,
+    )
+
+    set_number: int = Field(
+        ge=1,
+    )
+
+    weight: float | None = Field(
+        default=None,
+        ge=0,
+    )
+
+    weight_unit: Literal[
+        "lb",
+        "kg",
+    ] = "lb"
+
+    reps: int | None = Field(
+        default=None,
+        ge=0,
+    )
+
+    completed: bool = True
+
+
+class WorkoutSessionComplete(BaseModel):
+    notes: str | None = Field(
+        default=None,
+        max_length=2000,
+    )
 # ---------------------------------------------------------
 # General API endpoints
 # ---------------------------------------------------------
@@ -460,4 +521,224 @@ def delete_saved_workout(
     return {
         "message":
             "Workout program deleted successfully."
+    }
+
+# ---------------------------------------------------------
+# Workout progress tracking endpoints
+# ---------------------------------------------------------
+
+
+# START WORKOUT SESSION
+@app.post(
+    "/api/users/{user_id}/sessions",
+    status_code=201,
+)
+def start_workout_session(
+    user_id: int,
+    request: WorkoutSessionCreate,
+):
+    try:
+        user = get_user_by_id(
+            user_id
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to retrieve user.",
+        )
+
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found.",
+        )
+
+    try:
+        session = create_workout_session(
+            user_id=user_id,
+            program_id=request.program_id,
+            workout_day_id=request.workout_day_id,
+            program_name=request.program_name,
+            day_name=request.day_name,
+            notes=request.notes,
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to start workout session.",
+        )
+
+    return {
+        "message":
+            "Workout session started successfully.",
+        "session":
+            session,
+    }
+
+
+# LOG WORKOUT SET
+@app.post(
+    "/api/users/{user_id}/sessions/{session_id}/sets",
+    status_code=201,
+)
+def create_workout_set_log(
+    user_id: int,
+    session_id: int,
+    request: WorkoutSetLogCreate,
+):
+    try:
+        user = get_user_by_id(
+            user_id
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to retrieve user.",
+        )
+
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found.",
+        )
+
+    try:
+        set_log = log_workout_set(
+            user_id=user_id,
+            session_id=session_id,
+            workout_exercise_id=
+                request.workout_exercise_id,
+            exercise_name=
+                request.exercise_name,
+            set_number=
+                request.set_number,
+            weight=
+                request.weight,
+            weight_unit=
+                request.weight_unit,
+            reps=
+                request.reps,
+            completed=
+                request.completed,
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to log workout set.",
+        )
+
+    if set_log is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Workout session not found.",
+        )
+
+    return {
+        "message":
+            "Workout set logged successfully.",
+        "set":
+            set_log,
+    }
+
+
+# COMPLETE WORKOUT SESSION
+@app.put(
+    "/api/users/{user_id}/sessions/{session_id}/complete"
+)
+def finish_workout_session(
+    user_id: int,
+    session_id: int,
+    request: WorkoutSessionComplete,
+):
+    try:
+        user = get_user_by_id(
+            user_id
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to retrieve user.",
+        )
+
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found.",
+        )
+
+    try:
+        session = complete_workout_session(
+            user_id=user_id,
+            session_id=session_id,
+            notes=request.notes,
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to complete workout session.",
+        )
+
+    if session is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Workout session not found.",
+        )
+
+    return {
+        "message":
+            "Workout session completed successfully.",
+        "session":
+            session,
+    }
+
+
+# GET WORKOUT HISTORY
+@app.get(
+    "/api/users/{user_id}/sessions"
+)
+def get_workout_history(
+    user_id: int,
+):
+    try:
+        user = get_user_by_id(
+            user_id
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to retrieve user.",
+        )
+
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found.",
+        )
+
+    try:
+        sessions = (
+            get_workout_sessions_by_user(
+                user_id
+            )
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to retrieve workout history.",
+        )
+
+    return {
+        "user_id":
+            user_id,
+
+        "sessions":
+            sessions,
     }

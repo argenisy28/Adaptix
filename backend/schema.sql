@@ -54,3 +54,77 @@ CREATE TABLE IF NOT EXISTS workout_exercises (
         REFERENCES workout_days(id)
         ON DELETE CASCADE
 );
+
+-- =====================================================
+-- WORKOUT SESSIONS
+-- Stores each workout that a user starts/completes.
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS workout_sessions (
+    id SERIAL PRIMARY KEY,
+
+    user_id INTEGER NOT NULL
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    program_id INTEGER
+        REFERENCES workout_programs(id)
+        ON DELETE SET NULL,
+
+    workout_day_id INTEGER
+        REFERENCES workout_days(id)
+        ON DELETE SET NULL,
+
+    program_name VARCHAR(255) NOT NULL,
+
+    day_name VARCHAR(255) NOT NULL,
+
+    started_at TIMESTAMP WITH TIME ZONE
+        DEFAULT CURRENT_TIMESTAMP,
+
+    completed_at TIMESTAMP WITH TIME ZONE,
+
+    notes TEXT
+);
+
+
+-- =====================================================
+-- WORKOUT SET LOGS
+-- Stores the actual performance of every set.
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS workout_set_logs (
+    id SERIAL PRIMARY KEY,
+
+    session_id INTEGER NOT NULL
+        REFERENCES workout_sessions(id)
+        ON DELETE CASCADE,
+
+    workout_exercise_id INTEGER
+        REFERENCES workout_exercises(id)
+        ON DELETE SET NULL,
+
+    exercise_name VARCHAR(255) NOT NULL,
+
+    set_number INTEGER NOT NULL
+        CHECK (set_number > 0),
+
+    weight NUMERIC(7, 2),
+
+    weight_unit VARCHAR(3)
+        NOT NULL
+        DEFAULT 'lb'
+        CHECK (
+            weight_unit IN ('lb', 'kg')
+        ),
+
+    reps INTEGER
+        CHECK (reps >= 0),
+
+    completed BOOLEAN
+        NOT NULL
+        DEFAULT TRUE,
+
+    created_at TIMESTAMP WITH TIME ZONE
+        DEFAULT CURRENT_TIMESTAMP
+);
