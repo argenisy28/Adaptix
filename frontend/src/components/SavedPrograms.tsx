@@ -10,7 +10,14 @@ type SavedProgramsProps = {
   programs: SavedProgram[];
   loading: boolean;
   error: string;
+
+  deletingProgramId: number | null;
+
   onLoadPrograms: () => void;
+
+  onDeleteProgram: (
+    programId: number
+  ) => void;
 };
 
 
@@ -19,10 +26,15 @@ function SavedPrograms({
   programs,
   loading,
   error,
+  deletingProgramId,
   onLoadPrograms,
+  onDeleteProgram,
 }: SavedProgramsProps) {
   return (
-    <section className="saved-section">
+    <section
+      id="programs"
+      className="saved-section"
+    >
 
       <div className="saved-header">
 
@@ -71,12 +83,12 @@ function SavedPrograms({
         {programs.map(
           (program) => (
 
-            <article
+            <details
               className="saved-program"
               key={program.id}
             >
 
-              <div className="saved-program-title">
+              <summary className="saved-program-summary">
 
                 <div>
                   <h3>
@@ -84,9 +96,43 @@ function SavedPrograms({
                   </h3>
 
                   <p>
-                    Program #{program.id}
+                    {program.days_per_week} days
+                    {" • "}
+                    {program.goal.replace(
+                      "_",
+                      " "
+                    )}
                   </p>
                 </div>
+
+
+                <span className="expand-label">
+                  View Program
+                </span>
+
+              </summary>
+
+
+              <div className="program-actions">
+
+                <button
+                  type="button"
+                  className="delete-program-button"
+                  onClick={() =>
+                    onDeleteProgram(
+                      program.id
+                    )
+                  }
+                  disabled={
+                    deletingProgramId ===
+                    program.id
+                  }
+                >
+                  {deletingProgramId ===
+                  program.id
+                    ? "Deleting..."
+                    : "Delete Program"}
+                </button>
 
               </div>
 
@@ -140,10 +186,12 @@ function SavedPrograms({
                       exercises={
                         day.exercises.map(
                           (exercise) => ({
-                            id: exercise.id,
+                            id:
+                              exercise.id,
 
                             name:
-                              exercise.exercise_name,
+                              exercise
+                                .exercise_name,
 
                             sets:
                               exercise.sets,
@@ -152,7 +200,8 @@ function SavedPrograms({
                               exercise.reps,
 
                             restSeconds:
-                              exercise.rest_seconds,
+                              exercise
+                                .rest_seconds,
                           })
                         )
                       }
@@ -163,7 +212,7 @@ function SavedPrograms({
 
               </div>
 
-            </article>
+            </details>
 
           )
         )}

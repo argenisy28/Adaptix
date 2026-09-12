@@ -6,6 +6,7 @@ from psycopg2.errors import UniqueViolation
 from backend.workout_repository import (
     get_workout_programs_by_user,
     save_workout_program,
+    delete_workout_program,
 )
 
 from backend.recommender import recommend_split
@@ -416,3 +417,47 @@ def start_account(request: AccountStartRequest):
             status_code=500,
             detail="Unable to start account.",
         )
+@app.delete(
+    "/api/users/{user_id}/workouts/{program_id}"
+)
+def delete_saved_workout(
+    user_id: int,
+    program_id: int,
+):
+    try:
+        user = get_user_by_id(user_id)
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to retrieve user.",
+        )
+
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found.",
+        )
+
+    try:
+        deleted = delete_workout_program(
+            user_id=user_id,
+            program_id=program_id,
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to delete workout program.",
+        )
+
+    if not deleted:
+        raise HTTPException(
+            status_code=404,
+            detail="Workout program not found.",
+        )
+
+    return {
+        "message":
+            "Workout program deleted successfully."
+    }

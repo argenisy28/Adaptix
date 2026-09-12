@@ -4,6 +4,7 @@ from backend.workout_generator import generate_program
 from backend.workout_repository import (
     get_workout_programs_by_user,
     save_workout_program,
+    delete_workout_program,
 )
 
 
@@ -166,3 +167,45 @@ def test_bodyweight_exercises_persist_correctly():
 
     assert "Push-Up" in exercise_names
     assert "Bench Press" not in exercise_names
+
+def test_delete_workout_program():
+    user = create_user(
+        name="Delete Workout User",
+        email="deleteworkout@test.com",
+    )
+
+    recommended_split = recommend_split(
+        goal="strength",
+        experience_level="intermediate",
+        days_per_week=4,
+    )
+
+    workouts = generate_program(
+        schedule=recommended_split["schedule"],
+        goal="strength",
+        equipment="full_gym",
+        experience_level="intermediate",
+    )
+
+    program_id = save_workout_program(
+        user_id=user["id"],
+        program_name="Delete Test Program",
+        goal="strength",
+        experience_level="intermediate",
+        days_per_week=4,
+        equipment="full_gym",
+        workouts=workouts,
+    )
+
+    deleted = delete_workout_program(
+        user_id=user["id"],
+        program_id=program_id,
+    )
+
+    assert deleted is True
+
+    programs = get_workout_programs_by_user(
+        user["id"]
+    )
+
+    assert programs == []

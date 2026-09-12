@@ -81,7 +81,7 @@ def save_workout_program(
                 workout_day_id = cursor.fetchone()[0]
 
                 # ---------------------------------------------
-                # Insert exercises for this workout day
+                # Insert exercises for each workout day
                 # ---------------------------------------------
 
                 for exercise_order, exercise in enumerate(
@@ -100,7 +100,13 @@ def save_workout_program(
                             exercise_order
                         )
                         VALUES (
-                            %s, %s, %s, %s, %s, %s, %s
+                            %s,
+                            %s,
+                            %s,
+                            %s,
+                            %s,
+                            %s,
+                            %s
                         );
                         """,
                         (
@@ -114,13 +120,13 @@ def save_workout_program(
                         ),
                     )
 
-        # Save everything only after all inserts succeed
+        # Save everything only if every INSERT succeeded
         connection.commit()
 
         return program_id
 
     except Exception:
-        # Undo everything if any insert fails
+        # If anything fails, undo the entire transaction
         connection.rollback()
         raise
 
@@ -128,7 +134,9 @@ def save_workout_program(
         connection.close()
 
 
-def get_workout_programs_by_user(user_id: int):
+def get_workout_programs_by_user(
+    user_id: int,
+):
     """
     Retrieve all workout programs belonging to a user.
 
@@ -137,8 +145,8 @@ def get_workout_programs_by_user(user_id: int):
     - workout_days
     - workout_exercises
 
-    The flat SQL rows are then converted into nested
-    Python dictionaries for the API response.
+    The flat SQL rows are converted into nested Python
+    dictionaries for the API response.
     """
 
     connection = get_connection()
@@ -191,20 +199,24 @@ def get_workout_programs_by_user(user_id: int):
 
             rows = cursor.fetchall()
 
-        # Stores completed programs using program ID as the key
+        # -------------------------------------------------
+        # Rebuild nested program structure
+        # -------------------------------------------------
+
         programs = {}
 
-        # Helps us avoid creating the same workout day
-        # multiple times when SQL returns one row per exercise
+        # Used to avoid creating the same workout day
+        # repeatedly because JOIN results return one row
+        # per exercise.
         day_lookup = {}
 
         for row in rows:
 
             program_id = row["program_id"]
 
-            # -------------------------------------------------
+            # ---------------------------------------------
             # Create program object once
-            # -------------------------------------------------
+            # ---------------------------------------------
 
             if program_id not in programs:
                 programs[program_id] = {
@@ -222,8 +234,7 @@ def get_workout_programs_by_user(user_id: int):
 
             workout_day_id = row["workout_day_id"]
 
-            # A LEFT JOIN could theoretically return a program
-            # that does not yet contain any workout days.
+            # A LEFT JOIN can return a program with no days
             if workout_day_id is None:
                 continue
 
@@ -232,9 +243,9 @@ def get_workout_programs_by_user(user_id: int):
                 workout_day_id,
             )
 
-            # -------------------------------------------------
+            # ---------------------------------------------
             # Create workout day object once
-            # -------------------------------------------------
+            # ---------------------------------------------
 
             if day_key not in day_lookup:
 
@@ -251,21 +262,25 @@ def get_workout_programs_by_user(user_id: int):
                     "workout_days"
                 ].append(workout_day)
 
-            # -------------------------------------------------
-            # Add exercise to its workout day
-            # -------------------------------------------------
+            # ---------------------------------------------
+            # Add exercise to workout day
+            # ---------------------------------------------
 
             if row["exercise_id"] is not None:
 
                 exercise = {
                     "id": row["exercise_id"],
-                    "exercise_name": row["exercise_name"],
+                    "exercise_name": row[
+                        "exercise_name"
+                    ],
                     "movement_pattern": row[
                         "movement_pattern"
                     ],
                     "sets": row["sets"],
                     "reps": row["reps"],
-                    "rest_seconds": row["rest_seconds"],
+                    "rest_seconds": row[
+                        "rest_seconds"
+                    ],
                     "exercise_order": row[
                         "exercise_order"
                     ],
@@ -275,7 +290,53 @@ def get_workout_programs_by_user(user_id: int):
                     "exercises"
                 ].append(exercise)
 
-        return list(programs.values())
+        return list(
+            programs.values()
+        )
+
+    finally:
+        connection.close()
+
+
+def delete_workout_program(
+    user_id: int,
+    program_id: int,
+):
+    """
+    Delete a workout program belonging to a specific user.
+
+    PostgreSQL automatically deletes its related workout
+    days and exercises because the database schema uses
+    ON DELETE CASCADE.
+    """
+
+    connection = get_connection()
+
+    try:
+        with connection.cursor() as cursor:
+
+            cursor.execute(
+                """
+                DELETE FROM workout_programs
+                WHERE id = %s
+                  AND user_id = %s
+                RETURNING id;
+                """,
+                (
+                    program_id,
+                    user_id,
+                ),
+            )
+
+            deleted_program = cursor.fetchone()
+
+        connection.commit()
+
+        return deleted_program is not None
+
+    except Exception:
+        connection.rollback()
+        raise
 
     finally:
         connection.close()

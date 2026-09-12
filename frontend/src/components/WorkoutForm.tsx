@@ -36,7 +36,9 @@ function WorkoutForm({
   onSubmit,
 }: WorkoutFormProps) {
   return (
-    <section className="generator-section">
+    <section 
+    id = "build"
+    className="generator-section">
 
       <h2>
         Build Your Workout

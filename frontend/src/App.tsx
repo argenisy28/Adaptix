@@ -4,10 +4,11 @@ import type { FormEvent } from "react";
 import "./App.css";
 
 import ProfileBar from "./components/ProfileBar";
+import SavedPrograms from "./components/SavedPrograms";
 import StartScreen from "./components/StartScreen";
+import TopNav from "./components/TopNav";
 import WorkoutCard from "./components/WorkoutCard";
 import WorkoutForm from "./components/WorkoutForm";
-import SavedPrograms from "./components/SavedPrograms";
 
 import type {
   SavedProgram,
@@ -112,6 +113,11 @@ function App() {
     setLoadingSaved,
   ] = useState(false);
 
+  const [
+    deletingProgramId,
+    setDeletingProgramId,
+  ] = useState<number | null>(null);
+
 
   // ----------------------------------------------------
   // Error states
@@ -127,7 +133,7 @@ function App() {
 
 
   // ----------------------------------------------------
-  // Check backend connection
+  // Check FastAPI connection
   // ----------------------------------------------------
 
   useEffect(() => {
@@ -167,6 +173,11 @@ function App() {
     );
 
     setCurrentUser(user);
+
+    setWorkout(null);
+    setSavedPrograms([]);
+    setError("");
+    setSavedError("");
   }
 
 
@@ -176,10 +187,14 @@ function App() {
     );
 
     setCurrentUser(null);
+
     setWorkout(null);
     setSavedPrograms([]);
+
     setError("");
     setSavedError("");
+
+    setDeletingProgramId(null);
   }
 
 
@@ -235,6 +250,88 @@ function App() {
 
 
   // ----------------------------------------------------
+  // Delete saved workout program
+  // ----------------------------------------------------
+
+  async function deleteSavedProgram(
+    programId: number
+  ) {
+    if (!currentUser) {
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        "Delete this workout program? This cannot be undone."
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setDeletingProgramId(
+      programId
+    );
+
+    setSavedError("");
+
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/users/${currentUser.id}/workouts/${programId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail ||
+          "Unable to delete workout program."
+        );
+      }
+
+      // Remove the program from React immediately
+      // after PostgreSQL successfully deletes it.
+      setSavedPrograms(
+        (previousPrograms) =>
+          previousPrograms.filter(
+            (program) =>
+              program.id !== programId
+          )
+      );
+
+      // If the program currently being shown
+      // was deleted, remove it from the screen too.
+      if (
+        workout?.program_id ===
+        programId
+      ) {
+        setWorkout(null);
+      }
+
+    } catch (err) {
+      if (err instanceof Error) {
+        setSavedError(
+          err.message
+        );
+      } else {
+        setSavedError(
+          "Unable to delete workout program."
+        );
+      }
+
+    } finally {
+      setDeletingProgramId(
+        null
+      );
+    }
+  }
+
+
+  // ----------------------------------------------------
   // Generate and save workout
   // ----------------------------------------------------
 
@@ -248,7 +345,9 @@ function App() {
     }
 
     setLoading(true);
+
     setError("");
+
     setWorkout(null);
 
     try {
@@ -296,7 +395,7 @@ function App() {
       );
 
       // Refresh saved programs automatically
-      // after generating a new one.
+      // after generating a new program.
       await loadSavedPrograms();
 
     } catch (err) {
@@ -339,7 +438,16 @@ function App() {
     <main className="app">
 
       {/* ----------------------------------------------
-          Header
+          Top Navigation
+      ---------------------------------------------- */}
+
+      <TopNav
+        user={currentUser}
+      />
+
+
+      {/* ----------------------------------------------
+          Hero / Header
       ---------------------------------------------- */}
 
       <header className="header">
@@ -349,9 +457,11 @@ function App() {
         </h1>
 
         <p>
-          Training built around your goals, experience,
-          schedule, and available equipment.
+          Training built around your
+          goals, experience, schedule,
+          and available equipment.
         </p>
+
 
         <span className="backend-status">
           {backendStatus}
@@ -441,6 +551,51 @@ function App() {
           <h2>
             {workout.program_name}
           </h2>
+
+
+          {/* Program information badges */}
+
+          <div className="program-badges">
+
+            <span>
+              {
+                workout
+                  .recommendation
+                  .split_name
+              }
+            </span>
+
+
+            <span>
+              {
+                goal.replace(
+                  "_",
+                  " "
+                )
+              }
+            </span>
+
+
+            <span>
+              {experienceLevel}
+            </span>
+
+
+            <span>
+              {daysPerWeek} Days
+            </span>
+
+
+            <span>
+              {
+                equipment.replace(
+                  "_",
+                  " "
+                )
+              }
+            </span>
+
+          </div>
 
 
           <div className="program-summary">
@@ -542,11 +697,33 @@ function App() {
       ---------------------------------------------- */}
 
       <SavedPrograms
-       userName={currentUser.name}
-       programs={savedPrograms}
-       loading={loadingSaved}
-       error={savedError}
-       onLoadPrograms={loadSavedPrograms}
+        userName={
+          currentUser.name
+        }
+
+        programs={
+          savedPrograms
+        }
+
+        loading={
+          loadingSaved
+        }
+
+        error={
+          savedError
+        }
+
+        deletingProgramId={
+          deletingProgramId
+        }
+
+        onLoadPrograms={
+          loadSavedPrograms
+        }
+
+        onDeleteProgram={
+          deleteSavedProgram
+        }
       />
 
     </main>
