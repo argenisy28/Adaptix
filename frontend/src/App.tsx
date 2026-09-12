@@ -101,13 +101,15 @@ function App() {
 
 
   // ----------------------------------------------------
-  // Saved programs
+  // Saved workout programs
   // ----------------------------------------------------
 
   const [
     savedPrograms,
     setSavedPrograms,
-  ] = useState<SavedProgram[]>([]);
+  ] = useState<SavedProgram[]>(
+    []
+  );
 
 
   // ----------------------------------------------------
@@ -117,17 +119,23 @@ function App() {
   const [
     loading,
     setLoading,
-  ] = useState(false);
+  ] = useState(
+    false
+  );
 
   const [
     loadingSaved,
     setLoadingSaved,
-  ] = useState(false);
+  ] = useState(
+    false
+  );
 
   const [
     deletingProgramId,
     setDeletingProgramId,
-  ] = useState<number | null>(null);
+  ] = useState<number | null>(
+    null
+  );
 
 
   // ----------------------------------------------------
@@ -137,12 +145,28 @@ function App() {
   const [
     error,
     setError,
-  ] = useState("");
+  ] = useState(
+    ""
+  );
 
   const [
     savedError,
     setSavedError,
-  ] = useState("");
+  ] = useState(
+    ""
+  );
+
+
+  // ----------------------------------------------------
+  // Success notification
+  // ----------------------------------------------------
+
+  const [
+    successMessage,
+    setSuccessMessage,
+  ] = useState(
+    ""
+  );
 
 
   // ----------------------------------------------------
@@ -174,6 +198,31 @@ function App() {
 
 
   // ----------------------------------------------------
+  // Automatically hide success messages
+  // ----------------------------------------------------
+
+  useEffect(() => {
+    if (!successMessage) {
+      return;
+    }
+
+    const timeoutId =
+      window.setTimeout(
+        () => {
+          setSuccessMessage("");
+        },
+        3500
+      );
+
+    return () => {
+      window.clearTimeout(
+        timeoutId
+      );
+    };
+  }, [successMessage]);
+
+
+  // ----------------------------------------------------
   // User profile handling
   // ----------------------------------------------------
 
@@ -192,6 +241,7 @@ function App() {
 
     setError("");
     setSavedError("");
+    setSuccessMessage("");
   }
 
 
@@ -207,13 +257,14 @@ function App() {
 
     setError("");
     setSavedError("");
+    setSuccessMessage("");
 
     setDeletingProgramId(null);
   }
 
 
   // ----------------------------------------------------
-  // Fetch saved programs from backend
+  // Fetch saved programs
   // ----------------------------------------------------
 
   const fetchSavedPrograms =
@@ -247,7 +298,7 @@ function App() {
 
 
   // ----------------------------------------------------
-  // Manual saved-program refresh
+  // Manual refresh for saved programs
   // ----------------------------------------------------
 
   const loadSavedPrograms =
@@ -284,8 +335,8 @@ function App() {
 
 
   // ----------------------------------------------------
-  // Automatically load programs
-  // when active profile changes
+  // Automatically load saved programs
+  // when the active profile changes
   // ----------------------------------------------------
 
   useEffect(() => {
@@ -353,6 +404,7 @@ function App() {
     );
 
     setSavedError("");
+    setSuccessMessage("");
 
     try {
       const response = await fetch(
@@ -372,6 +424,8 @@ function App() {
         );
       }
 
+      // Remove the deleted program
+      // immediately from the UI.
       setSavedPrograms(
         (previousPrograms) =>
           previousPrograms.filter(
@@ -380,12 +434,18 @@ function App() {
           )
       );
 
+      // If the currently displayed generated
+      // workout was deleted, hide it too.
       if (
         workout?.program_id ===
         programId
       ) {
         setWorkout(null);
       }
+
+      setSuccessMessage(
+        "Workout program deleted successfully."
+      );
 
     } catch (err) {
       if (err instanceof Error) {
@@ -420,7 +480,10 @@ function App() {
     }
 
     setLoading(true);
+
     setError("");
+    setSuccessMessage("");
+
     setWorkout(null);
 
     try {
@@ -467,8 +530,12 @@ function App() {
         data as WorkoutResponse
       );
 
+      setSuccessMessage(
+        "Workout generated and saved successfully."
+      );
+
       // Refresh saved programs after
-      // creating a new program.
+      // creating the workout.
       await loadSavedPrograms();
 
     } catch (err) {
@@ -517,6 +584,27 @@ function App() {
       />
 
 
+      {/* Success notification */}
+
+      {successMessage && (
+        <div
+          className="success-message"
+          role="status"
+          aria-live="polite"
+        >
+
+          <span className="success-icon">
+            ✓
+          </span>
+
+          <span>
+            {successMessage}
+          </span>
+
+        </div>
+      )}
+
+
       {/* Hero / Header */}
 
       <header className="header">
@@ -525,15 +613,18 @@ function App() {
           Adaptix
         </h1>
 
+
         <p>
           Training built around your goals,
           experience, schedule, and available
           equipment.
         </p>
 
+
         <span className="backend-status">
           {backendStatus}
         </span>
+
 
         <ProfileBar
           user={currentUser}
@@ -628,6 +719,7 @@ function App() {
               }
             </span>
 
+
             <span>
               {
                 goal.replace(
@@ -637,13 +729,16 @@ function App() {
               }
             </span>
 
+
             <span>
               {experienceLevel}
             </span>
 
+
             <span>
               {daysPerWeek} Days
             </span>
+
 
             <span>
               {
@@ -673,6 +768,7 @@ function App() {
               }
             </p>
 
+
             <p>
               {
                 workout
@@ -680,6 +776,7 @@ function App() {
                   .reason
               }
             </p>
+
 
             <p>
               <strong>

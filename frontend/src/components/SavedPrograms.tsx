@@ -61,8 +61,8 @@ function SavedPrograms({
           disabled={loading}
         >
           {loading
-            ? "Loading..."
-            : "Load Saved Programs"}
+            ? "Refreshing..."
+            : "Refresh Programs"}
         </button>
 
       </div>
