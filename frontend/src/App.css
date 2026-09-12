@@ -1,0 +1,215 @@
+.app {
+  width: min(1100px, 92%);
+  margin: 0 auto;
+  padding: 40px 0;
+}
+
+.header {
+  margin-bottom: 40px;
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.header p {
+  font-size: 1.1rem;
+}
+
+.backend-status {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+.generator-section {
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  margin-bottom: 40px;
+}
+
+.workout-form {
+  display: grid;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.workout-form label {
+  display: grid;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.workout-form input,
+.workout-form select {
+  padding: 12px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.workout-form button {
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+}
+
+.workout-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.error-message {
+  margin-top: 20px;
+  font-weight: 600;
+}
+
+.results-section {
+  margin-top: 40px;
+}
+
+.program-summary {
+  margin-bottom: 30px;
+}
+
+.workout-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.workout-card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.workout-card h3 {
+  margin-top: 0;
+}
+
+.exercise {
+  padding: 14px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.exercise:last-child {
+  border-bottom: none;
+}
+
+.exercise h4 {
+  margin: 0 0 6px;
+}
+
+.exercise p {
+  margin: 4px 0;
+}
+
+.saved-section {
+  margin-top: 60px;
+  margin-bottom: 60px;
+}
+
+.saved-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.saved-header button {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.saved-header button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.saved-programs {
+  display: grid;
+  gap: 30px;
+}
+
+.saved-program {
+  padding: 28px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: white;
+}
+
+.saved-program-title h3 {
+  margin-bottom: 4px;
+}
+
+.saved-program-title p {
+  margin-top: 0;
+}
+
+.program-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 20px 0 28px;
+}
+
+.program-details span {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-transform: capitalize;
+}
+
+.account-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-top: 24px;
+  padding: 16px 20px;
+
+  background: #ffffff;
+  border: 1px solid #e2e2e2;
+  border-radius: 12px;
+}
+
+.account-bar > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.account-bar strong {
+  font-size: 1rem;
+}
+
+.account-bar span {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.account-bar button {
+  padding: 10px 16px;
+
+  border: 1px solid #ccc;
+  border-radius: 8px;
+
+  background: white;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.account-bar button:hover {
+  background: #f3f3f3;
+}

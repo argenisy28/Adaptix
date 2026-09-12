@@ -38,6 +38,37 @@ def create_user(name: str, email: str):
     finally:
         connection.close()
 
+def get_user_by_email(email: str):
+    """
+    Retrieve a user from PostgreSQL by email address.
+    """
+
+    connection = get_connection()
+
+    try:
+        with connection.cursor(
+            cursor_factory=RealDictCursor
+        ) as cursor:
+
+            cursor.execute(
+                """
+                SELECT id, name, email, created_at
+                FROM users
+                WHERE email = %s;
+                """,
+                (email,),
+            )
+
+            user = cursor.fetchone()
+
+        if user is None:
+            return None
+
+        return dict(user)
+
+    finally:
+        connection.close()
+
 def get_user_by_id(user_id: int):
     """
     Retrieve a user from PostgreSQL by ID.

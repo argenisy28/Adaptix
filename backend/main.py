@@ -12,10 +12,12 @@ from backend.recommender import recommend_split
 from backend.user_repository import (
     create_user,
     delete_user,
+    get_user_by_email,
     get_user_by_id,
     update_user,
 )
 from backend.workout_generator import generate_program
+from fastapi.middleware.cors import CORSMiddleware
 
 
 # ---------------------------------------------------------
@@ -26,6 +28,17 @@ app = FastAPI(
     title="Personalized Workout API",
     description="API for generating personalized workout programs.",
     version="0.1.0",
+)
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -76,6 +89,16 @@ class UserCreate(BaseModel):
         max_length=255,
     )
 
+class AccountStartRequest(BaseModel):
+    name: str = Field(
+        min_length=1,
+        max_length=100,
+    )
+
+    email: str = Field(
+        min_length=3,
+        max_length=255,
+    )
 
 class UserUpdate(BaseModel):
     name: str = Field(
@@ -348,3 +371,48 @@ def get_saved_workouts(user_id: int):
         "user_id": user_id,
         "programs": programs,
     }
+
+@app.post("/api/account/start")
+def start_account(request: AccountStartRequest):
+    try:
+        existing_user = get_user_by_email(
+            request.email
+        )
+
+        if existing_user is not None:
+            return {
+                "created": False,
+                "user": existing_user,
+            }
+
+        new_user = create_user(
+            name=request.name,
+            email=request.email,
+        )
+
+        return {
+            "created": True,
+            "user": new_user,
+        }
+
+    except UniqueViolation:
+        existing_user = get_user_by_email(
+            request.email
+        )
+
+        if existing_user is not None:
+            return {
+                "created": False,
+                "user": existing_user,
+            }
+
+        raise HTTPException(
+            status_code=409,
+            detail="Unable to create user.",
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to start account.",
+        )
