@@ -1093,6 +1093,10 @@ function App() {
             activeWorkout
           }
 
+          workoutHistory={
+            workoutHistory
+          }
+
           onWorkoutCompleted={
             handleWorkoutCompleted
           }

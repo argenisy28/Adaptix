@@ -1,28 +1,41 @@
 import {
+  useEffect,
   useMemo,
   useState,
 } from "react";
 
 import type {
   ActiveWorkout,
+  WorkoutHistorySession,
 } from "../types/workout";
 
 
 type WorkoutTrackerProps = {
   userId: number;
+
   activeWorkout: ActiveWorkout;
+
+  workoutHistory: WorkoutHistorySession[];
+
   onWorkoutCompleted: () => void;
+
   onCancel: () => void;
 };
 
 
 type SetEntry = {
   exerciseId: number;
+
   exerciseName: string;
+
   setNumber: number;
+
   weight: string;
+
   reps: string;
+
   saved: boolean;
+
   saving: boolean;
 };
 
@@ -30,6 +43,7 @@ type SetEntry = {
 function WorkoutTracker({
   userId,
   activeWorkout,
+  workoutHistory,
   onWorkoutCompleted,
   onCancel,
 }: WorkoutTrackerProps) {
@@ -41,7 +55,7 @@ function WorkoutTracker({
 
 
   // ----------------------------------------------------
-  // Build initial set rows from the selected workout day
+  // Build initial set rows
   // ----------------------------------------------------
 
   const initialSets =
@@ -115,8 +129,275 @@ function WorkoutTracker({
   );
 
 
+  const [
+    prMessage,
+    setPrMessage,
+  ] = useState(
+    ""
+  );
+
+
   // ----------------------------------------------------
-  // Update a weight or reps field
+  // Automatically hide PR notification
+  // ----------------------------------------------------
+
+  useEffect(() => {
+    if (!prMessage) {
+      return;
+    }
+
+    const timeoutId =
+      window.setTimeout(
+        () => {
+          setPrMessage("");
+        },
+        4000
+      );
+
+    return () => {
+      window.clearTimeout(
+        timeoutId
+      );
+    };
+  }, [
+    prMessage,
+  ]);
+
+
+  // ----------------------------------------------------
+  // Find previous performance for an exercise
+  // ----------------------------------------------------
+
+  function getPreviousExerciseSets(
+    exerciseName: string
+  ) {
+    const previousSession =
+      workoutHistory.find(
+        (historySession) =>
+          historySession.completed_at !==
+            null &&
+          historySession.sets.some(
+            (set) =>
+              set.exercise_name ===
+              exerciseName
+          )
+      );
+
+
+    if (!previousSession) {
+      return [];
+    }
+
+
+    return previousSession.sets
+      .filter(
+        (set) =>
+          set.exercise_name ===
+          exerciseName
+      )
+      .sort(
+        (a, b) =>
+          a.set_number -
+          b.set_number
+      );
+  }
+
+
+  // ----------------------------------------------------
+  // Format previous set
+  // ----------------------------------------------------
+
+  function formatPreviousSet(
+    exerciseName: string,
+    setNumber: number
+  ) {
+    const previousSets =
+      getPreviousExerciseSets(
+        exerciseName
+      );
+
+
+    const previousSet =
+      previousSets.find(
+        (set) =>
+          set.set_number ===
+          setNumber
+      );
+
+
+    if (!previousSet) {
+      return "—";
+    }
+
+
+    if (
+      previousSet.weight === null
+    ) {
+      return (
+        `${previousSet.reps ?? 0} reps`
+      );
+    }
+
+
+    return (
+      `${previousSet.weight} ` +
+      `${previousSet.weight_unit} × ` +
+      `${previousSet.reps ?? 0}`
+    );
+  }
+
+
+  // ----------------------------------------------------
+  // Fill current fields with previous performance
+  // ----------------------------------------------------
+
+  function fillPreviousPerformance(
+    exerciseId: number,
+    exerciseName: string
+  ) {
+    const previousSets =
+      getPreviousExerciseSets(
+        exerciseName
+      );
+
+
+    if (
+      previousSets.length === 0
+    ) {
+      return;
+    }
+
+
+    setSets(
+      (currentSets) =>
+        currentSets.map(
+          (currentSet) => {
+            if (
+              currentSet.exerciseId !==
+                exerciseId ||
+              currentSet.saved
+            ) {
+              return currentSet;
+            }
+
+
+            const previousSet =
+              previousSets.find(
+                (set) =>
+                  set.set_number ===
+                  currentSet.setNumber
+              );
+
+
+            if (!previousSet) {
+              return currentSet;
+            }
+
+
+            return {
+              ...currentSet,
+
+              weight:
+                previousSet.weight !==
+                null
+                  ? String(
+                      previousSet.weight
+                    )
+                  : currentSet.weight,
+
+              reps:
+                previousSet.reps !==
+                null
+                  ? String(
+                      previousSet.reps
+                    )
+                  : currentSet.reps,
+            };
+          }
+        )
+    );
+
+
+    setError("");
+  }
+
+
+  // ----------------------------------------------------
+  // Find best historical/current weight
+  // ----------------------------------------------------
+
+  function getBestPreviousWeight(
+    exerciseId: number,
+    exerciseName: string,
+    currentSetNumber: number
+  ) {
+    const historyWeights =
+      workoutHistory.flatMap(
+        (historySession) =>
+          historySession.sets
+            .filter(
+              (set) =>
+                set.exercise_name ===
+                  exerciseName &&
+                set.completed &&
+                set.weight !==
+                  null
+            )
+            .map(
+              (set) =>
+                set.weight as number
+            )
+      );
+
+
+    const currentWorkoutWeights =
+      sets
+        .filter(
+          (set) =>
+            set.exerciseId ===
+              exerciseId &&
+            set.saved &&
+            set.setNumber !==
+              currentSetNumber &&
+            set.weight.trim() !==
+              ""
+        )
+        .map(
+          (set) =>
+            Number(
+              set.weight
+            )
+        )
+        .filter(
+          (weight) =>
+            !Number.isNaN(
+              weight
+            )
+        );
+
+
+    const allPreviousWeights = [
+      ...historyWeights,
+      ...currentWorkoutWeights,
+    ];
+
+
+    if (
+      allPreviousWeights.length ===
+      0
+    ) {
+      return null;
+    }
+
+
+    return Math.max(
+      ...allPreviousWeights
+    );
+  }
+
+
+  // ----------------------------------------------------
+  // Update weight or reps
   // ----------------------------------------------------
 
   function updateSet(
@@ -155,7 +436,9 @@ function WorkoutTracker({
   async function saveSet(
     entry: SetEntry
   ) {
-    if (entry.saved) {
+    if (
+      entry.saved
+    ) {
       return;
     }
 
@@ -173,14 +456,20 @@ function WorkoutTracker({
 
 
     const weight =
-      Number(entry.weight);
+      Number(
+        entry.weight
+      );
 
     const reps =
-      Number(entry.reps);
+      Number(
+        entry.reps
+      );
 
 
     if (
-      Number.isNaN(weight) ||
+      Number.isNaN(
+        weight
+      ) ||
       weight < 0
     ) {
       setError(
@@ -192,7 +481,9 @@ function WorkoutTracker({
 
 
     if (
-      !Number.isInteger(reps) ||
+      !Number.isInteger(
+        reps
+      ) ||
       reps < 0
     ) {
       setError(
@@ -201,6 +492,16 @@ function WorkoutTracker({
 
       return;
     }
+
+
+    // Find the best weight before this set
+    // is marked as saved.
+    const previousBestWeight =
+      getBestPreviousWeight(
+        entry.exerciseId,
+        entry.exerciseName,
+        entry.setNumber
+      );
 
 
     setError("");
@@ -267,12 +568,21 @@ function WorkoutTracker({
         await response.json();
 
 
-      if (!response.ok) {
+      if (
+        !response.ok
+      ) {
         throw new Error(
           data.detail ||
             "Unable to save workout set."
         );
       }
+
+
+      const isNewPR =
+        previousBestWeight ===
+          null ||
+        weight >
+          previousBestWeight;
 
 
       setSets(
@@ -291,6 +601,15 @@ function WorkoutTracker({
                 : set
           )
       );
+
+
+      if (
+        isNewPR
+      ) {
+        setPrMessage(
+          `New ${entry.exerciseName} PR — ${weight} lb × ${reps}`
+        );
+      }
 
     } catch (err) {
       setSets(
@@ -326,7 +645,7 @@ function WorkoutTracker({
 
 
   // ----------------------------------------------------
-  // Finish workout session
+  // Finish workout
   // ----------------------------------------------------
 
   async function finishWorkout() {
@@ -345,14 +664,22 @@ function WorkoutTracker({
           "Some sets have not been saved. Finish the workout anyway?"
         );
 
-      if (!confirmed) {
+
+      if (
+        !confirmed
+      ) {
         return;
       }
     }
 
 
-    setFinishing(true);
-    setError("");
+    setFinishing(
+      true
+    );
+
+    setError(
+      ""
+    );
 
 
     try {
@@ -382,7 +709,9 @@ function WorkoutTracker({
         await response.json();
 
 
-      if (!response.ok) {
+      if (
+        !response.ok
+      ) {
         throw new Error(
           data.detail ||
             "Unable to complete workout."
@@ -406,7 +735,9 @@ function WorkoutTracker({
       }
 
     } finally {
-      setFinishing(false);
+      setFinishing(
+        false
+      );
     }
   }
 
@@ -418,27 +749,37 @@ function WorkoutTracker({
   return (
     <section className="workout-tracker">
 
+      {/* ----------------------------------------------
+          Tracker Header
+      ---------------------------------------------- */}
+
       <div className="tracker-header">
 
         <div>
+
           <span className="tracker-label">
             Workout in progress
           </span>
+
 
           <h2>
             {day.day_name}
           </h2>
 
+
           <p>
             {program.program_name}
           </p>
+
         </div>
 
 
         <button
           type="button"
           className="tracker-cancel-button"
-          onClick={onCancel}
+          onClick={
+            onCancel
+          }
         >
           Close
         </button>
@@ -446,14 +787,20 @@ function WorkoutTracker({
       </div>
 
 
+      {/* ----------------------------------------------
+          Session Information
+      ---------------------------------------------- */}
+
       <div className="tracker-session-info">
 
         <span>
           Session #{session.id}
         </span>
 
+
         <span>
           Started{" "}
+
           {new Date(
             session.started_at
           ).toLocaleTimeString(
@@ -471,12 +818,53 @@ function WorkoutTracker({
       </div>
 
 
+      {/* ----------------------------------------------
+          PR Notification
+      ---------------------------------------------- */}
+
+      {prMessage && (
+        <div
+          className="pr-message"
+          role="status"
+          aria-live="polite"
+        >
+
+          <span className="pr-icon">
+            🏆
+          </span>
+
+
+          <div>
+
+            <strong>
+              Personal Record!
+            </strong>
+
+
+            <span>
+              {prMessage}
+            </span>
+
+          </div>
+
+        </div>
+      )}
+
+
+      {/* ----------------------------------------------
+          Error Message
+      ---------------------------------------------- */}
+
       {error && (
         <p className="error-message">
           {error}
         </p>
       )}
 
+
+      {/* ----------------------------------------------
+          Exercises
+      ---------------------------------------------- */}
 
       <div className="tracker-exercises">
 
@@ -491,30 +879,73 @@ function WorkoutTracker({
               );
 
 
+            const hasPreviousPerformance =
+              getPreviousExerciseSets(
+                exercise.exercise_name
+              ).length > 0;
+
+
             return (
               <article
                 className="tracker-exercise"
-                key={exercise.id}
+                key={
+                  exercise.id
+                }
               >
+
+                {/* Exercise Header */}
 
                 <div className="tracker-exercise-header">
 
                   <div>
+
                     <h3>
                       {
                         exercise.exercise_name
                       }
                     </h3>
 
+
                     <p>
                       Target:{" "}
                       {exercise.sets} ×{" "}
                       {exercise.reps}
                     </p>
+
                   </div>
+
+
+                  {hasPreviousPerformance && (
+
+                    <div className="tracker-exercise-actions">
+
+                      <span className="previous-performance-badge">
+                        Previous performance available
+                      </span>
+
+
+                      <button
+                        type="button"
+                        className="use-previous-button"
+                        onClick={
+                          () =>
+                            fillPreviousPerformance(
+                              exercise.id,
+                              exercise.exercise_name
+                            )
+                        }
+                      >
+                        Use Previous
+                      </button>
+
+                    </div>
+
+                  )}
 
                 </div>
 
+
+                {/* Set Table */}
 
                 <div className="tracker-set-table">
 
@@ -533,6 +964,10 @@ function WorkoutTracker({
                     </span>
 
                     <span>
+                      Previous
+                    </span>
+
+                    <span>
                       Status
                     </span>
 
@@ -541,6 +976,7 @@ function WorkoutTracker({
 
                   {exerciseSets.map(
                     (entry) => (
+
                       <div
                         className="tracker-set-row"
                         key={
@@ -548,12 +984,16 @@ function WorkoutTracker({
                         }
                       >
 
+                        {/* Set Number */}
+
                         <strong>
                           {
                             entry.setNumber
                           }
                         </strong>
 
+
+                        {/* Weight */}
 
                         <div className="tracker-input-group">
 
@@ -579,12 +1019,15 @@ function WorkoutTracker({
                             }
                           />
 
+
                           <span>
                             lb
                           </span>
 
                         </div>
 
+
+                        {/* Reps */}
 
                         <input
                           type="number"
@@ -609,6 +1052,22 @@ function WorkoutTracker({
                         />
 
 
+                        {/* Previous Performance */}
+
+                        <div className="previous-set">
+
+                          {
+                            formatPreviousSet(
+                              exercise.exercise_name,
+                              entry.setNumber
+                            )
+                          }
+
+                        </div>
+
+
+                        {/* Save Set */}
+
                         <button
                           type="button"
                           className={
@@ -627,6 +1086,7 @@ function WorkoutTracker({
                               )
                           }
                         >
+
                           {
                             entry.saved
                               ? "✓ Saved"
@@ -634,9 +1094,11 @@ function WorkoutTracker({
                                 ? "Saving..."
                                 : "Save Set"
                           }
+
                         </button>
 
                       </div>
+
                     )
                   )}
 
@@ -650,14 +1112,22 @@ function WorkoutTracker({
       </div>
 
 
+      {/* ----------------------------------------------
+          Workout Notes
+      ---------------------------------------------- */}
+
       <div className="tracker-notes">
 
         <label>
+
           Workout Notes
+
 
           <textarea
             placeholder="How did the workout feel?"
-            value={notes}
+            value={
+              notes
+            }
             onChange={
               (event) =>
                 setNotes(
@@ -671,9 +1141,14 @@ function WorkoutTracker({
       </div>
 
 
+      {/* ----------------------------------------------
+          Tracker Footer
+      ---------------------------------------------- */}
+
       <div className="tracker-footer">
 
         <div>
+
           <strong>
             {
               sets.filter(
@@ -686,27 +1161,34 @@ function WorkoutTracker({
           {" of "}
 
           <strong>
-            {sets.length}
+            {
+              sets.length
+            }
           </strong>
 
           {" sets saved"}
+
         </div>
 
 
         <button
           type="button"
           className="finish-workout-button"
-          disabled={finishing}
+          disabled={
+            finishing
+          }
           onClick={
             () =>
               void finishWorkout()
           }
         >
+
           {
             finishing
               ? "Finishing..."
               : "Finish Workout"
           }
+
         </button>
 
       </div>

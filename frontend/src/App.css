@@ -1691,9 +1691,10 @@ button:hover:not(:disabled) {
   display: grid;
 
   grid-template-columns:
-    70px
-    minmax(130px, 1fr)
-    minmax(100px, 0.7fr)
+    60px
+    minmax(120px, 1fr)
+    minmax(90px, 0.7fr)
+    minmax(135px, 0.9fr)
     minmax(120px, 0.8fr);
 
   align-items: center;
@@ -2454,5 +2455,203 @@ summary::-webkit-details-marker {
   .history-summary-meta {
     align-items:
       flex-start;
+  }
+}
+
+/* ======================================================
+   PREVIOUS PERFORMANCE
+====================================================== */
+
+.previous-set {
+  color: #aeb6bf;
+
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.previous-performance-badge {
+  display: inline-flex;
+
+  margin-top: 10px;
+
+  padding: 5px 9px;
+
+  border:
+    1px solid
+    rgba(92, 255, 139, 0.2);
+
+  border-radius: 999px;
+
+  background:
+    rgba(92, 255, 139, 0.06);
+
+  color: #8feaaa;
+
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+/* ======================================================
+   USE PREVIOUS PERFORMANCE
+====================================================== */
+
+.tracker-exercise-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+.tracker-exercise-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+
+  gap: 9px;
+}
+
+.use-previous-button {
+  padding: 7px 11px;
+
+  border:
+    1px solid
+    rgba(92, 255, 139, 0.35);
+
+  border-radius: 9px;
+
+  background:
+    rgba(92, 255, 139, 0.08);
+
+  color: #aaffc1;
+
+  font-size: 0.72rem;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.use-previous-button:hover {
+  transform:
+    translateY(-1px);
+
+  background:
+    rgba(92, 255, 139, 0.15);
+
+  border-color:
+    rgba(92, 255, 139, 0.65);
+}
+
+.use-previous-button:active {
+  transform:
+    translateY(0);
+}
+
+
+@media (max-width: 700px) {
+  .tracker-exercise-header {
+    flex-direction: column;
+  }
+
+  .tracker-exercise-actions {
+    width: 100%;
+
+    justify-content: flex-start;
+  }
+}
+
+/* ======================================================
+   PERSONAL RECORD NOTIFICATION
+====================================================== */
+
+.pr-message {
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  margin-bottom: 24px;
+
+  padding: 15px 17px;
+
+  border:
+    1px solid
+    rgba(255, 205, 70, 0.35);
+
+  border-radius: 12px;
+
+  background:
+    rgba(255, 205, 70, 0.08);
+
+  box-shadow:
+    0 12px 35px
+    rgba(0, 0, 0, 0.18);
+
+  animation:
+    pr-enter
+    0.25s
+    ease;
+}
+
+
+.pr-icon {
+  display: grid;
+  place-items: center;
+
+  width: 38px;
+  height: 38px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 205, 70, 0.12);
+
+  font-size: 1.25rem;
+}
+
+
+.pr-message div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+
+.pr-message strong {
+  color: #ffe08a;
+
+  font-size: 0.9rem;
+}
+
+
+.pr-message span:not(.pr-icon) {
+  color: #c6b985;
+
+  font-size: 0.82rem;
+}
+
+
+@keyframes pr-enter {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
   }
 }
