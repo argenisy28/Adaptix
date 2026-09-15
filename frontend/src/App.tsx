@@ -16,6 +16,8 @@ import WorkoutCard from "./components/WorkoutCard";
 import WorkoutForm from "./components/WorkoutForm";
 import WorkoutHistory from "./components/WorkoutHistory";
 import WorkoutTracker from "./components/WorkoutTracker";
+import PersonalRecords from "./components/PersonalRecords";
+
 
 import type {
   ActiveWorkout,
@@ -1416,24 +1418,34 @@ function App() {
 
 
           {/* Workout History */}
+{/* Workout History */}
 
-          <WorkoutHistory
-            sessions={
-              workoutHistory
-            }
+<WorkoutHistory
+  sessions={
+    workoutHistory
+  }
 
-            loading={
-              loadingHistory
-            }
+  loading={
+    loadingHistory
+  }
 
-            error={
-              historyError
-            }
+  error={
+    historyError
+  }
 
-            onRefresh={
-              loadWorkoutHistory
-            }
-          />
+  onRefresh={
+    loadWorkoutHistory
+  }
+/>
+
+
+{/* Personal Records */}
+
+<PersonalRecords
+  workoutHistory={
+    workoutHistory
+  }
+/>
 
         </>
 

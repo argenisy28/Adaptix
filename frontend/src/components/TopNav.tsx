@@ -42,6 +42,10 @@ function TopNav({
           History
         </a>
 
+        <a href="#records">
+          Records
+        </a>
+
       </div>
 
 
