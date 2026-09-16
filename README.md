@@ -74,7 +74,7 @@ Adaptix generates workout programs based on a user's training goals, experience 
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```text
 ┌──────────────────────────────┐
@@ -188,7 +188,7 @@ Adaptix/
 
 ---
 
-## 🗄️ Database Structure
+## Database Structure
 
 Adaptix uses PostgreSQL with six main relational tables.
 
