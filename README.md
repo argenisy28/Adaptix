@@ -1,4 +1,4 @@
-# Adaptix 🏋️
+# Adaptix 
 
 A full-stack personalized workout application built with React, TypeScript, FastAPI, and PostgreSQL.
 
@@ -8,28 +8,28 @@ Adaptix generates workout programs based on a user's training goals, experience 
 
 ## ✨ Features
 
-- 🧠 Generate personalized workout programs based on:
+- Generate personalized workout programs based on:
   - Training goal
   - Experience level
   - Days per week
   - Available equipment
-- 👤 Persistent user profiles
-- 💾 Save generated workout programs
-- 📋 View previously saved programs
-- 🗑️ Delete workout programs
-- 🏋️ Start individual workout sessions
-- 📊 Log weight and repetitions for every set
-- ⏱️ Track workout start and completion times
-- 📝 Add notes to completed workouts
-- 🔁 View previous performance for each exercise
-- ↩️ Use the **Use Previous** button to automatically refill previous weights and reps
-- 🏆 Detect new personal records while training
-- 📚 View complete workout history
-- 🥇 Personal Records section showing the best logged performance for each exercise
-- 📱 Responsive React interface
-- 🗄️ PostgreSQL database for persistent storage
-- 🧪 Automated backend testing with pytest
-- 🔐 Database credentials stored securely using a `.env` file
+  - Persistent user profiles
+  - Save generated workout programs
+  - View previously saved programs
+  - Delete workout programs
+  - Start individual workout sessions
+  - Log weight and repetitions for every set
+  - Track workout start and completion times
+  - Add notes to completed workouts
+  - View previous performance for each exercise
+  - Use the **Use Previous** button to automatically refill previous weights and reps
+  - Detect new personal records while training
+  - View complete workout history
+  - Personal Records section showing the best logged performance for each exercise
+  - Responsive React interface
+  - PostgreSQL database for persistent storage
+  - Automated backend testing with pytest
+  - Database credentials stored securely using a `.env` file
 
 ---
 
