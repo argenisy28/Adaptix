@@ -1,4 +1,4 @@
-# Adaptix 
+# Adaptix 🏋️
 
 A full-stack personalized workout application built with React, TypeScript, FastAPI, and PostgreSQL.
 
@@ -8,28 +8,28 @@ Adaptix generates workout programs based on a user's training goals, experience 
 
 ## ✨ Features
 
-- Generate personalized workout programs based on:
+- 🧠 Generate personalized workout programs based on:
   - Training goal
   - Experience level
-  - Days per week
+  - Training days per week
   - Available equipment
-  - Persistent user profiles
-  - Save generated workout programs
-  - View previously saved programs
-  - Delete workout programs
-  - Start individual workout sessions
-  - Log weight and repetitions for every set
-  - Track workout start and completion times
-  - Add notes to completed workouts
-  - View previous performance for each exercise
-  - Use the **Use Previous** button to automatically refill previous weights and reps
-  - Detect new personal records while training
-  - View complete workout history
-  - Personal Records section showing the best logged performance for each exercise
-  - Responsive React interface
-  - PostgreSQL database for persistent storage
-  - Automated backend testing with pytest
-  - Database credentials stored securely using a `.env` file
+- 👤 Persistent user profiles
+- 💾 Save generated workout programs
+- 📋 View previously saved workout programs
+- 🗑️ Delete saved programs
+- 🏋️ Start individual workout sessions
+- 📊 Log weight and repetitions for every set
+- ⏱️ Track workout start and completion times
+- 📝 Add notes to workout sessions
+- 🔁 View previous performance for each exercise
+- ↩️ Reuse previous weights and reps with the **Use Previous** feature
+- 🏆 Detect new personal records while training
+- 📚 Review completed and incomplete workout history
+- 🥇 Personal Records section showing the best logged performance for each exercise
+- 📱 Responsive React interface
+- 🗄️ PostgreSQL database for persistent storage
+- 🧪 Automated backend testing with pytest
+- 🔐 Database credentials protected with a `.env` file
 
 ---
 
@@ -58,6 +58,7 @@ Adaptix generates workout programs based on a user's training goals, experience 
 - psycopg2
 - SQL
 - Relational database design
+- SQL JOINs
 
 ### Testing
 
@@ -74,18 +75,18 @@ Adaptix generates workout programs based on a user's training goals, experience 
 
 ---
 
-## Architecture
+## 🏗️ Architecture
 
 ```text
 ┌──────────────────────────────┐
-│       React + TypeScript     │
-│          Frontend            │
+│      React + TypeScript      │
+│           Frontend           │
 │                              │
-│ Workout Builder              │
-│ Saved Programs               │
-│ Workout Tracker              │
-│ Workout History              │
-│ Personal Records             │
+│  Workout Builder             │
+│  Saved Programs              │
+│  Workout Tracker             │
+│  Workout History             │
+│  Personal Records            │
 └──────────────┬───────────────┘
                │
                │ HTTP / JSON
@@ -94,11 +95,11 @@ Adaptix generates workout programs based on a user's training goals, experience 
 │           FastAPI            │
 │           Backend            │
 │                              │
-│ User Management              │
-│ Workout Generation           │
-│ Program Management           │
-│ Session Tracking             │
-│ Set Logging                  │
+│  User Management             │
+│  Workout Generation          │
+│  Program Management          │
+│  Session Tracking            │
+│  Set Logging                 │
 └──────────────┬───────────────┘
                │
                │ SQL
@@ -106,21 +107,27 @@ Adaptix generates workout programs based on a user's training goals, experience 
 ┌──────────────────────────────┐
 │         PostgreSQL           │
 │                              │
-│ Users                        │
-│ Programs                     │
-│ Workout Days                 │
-│ Exercises                    │
-│ Sessions                     │
-│ Set Logs                     │
+│  Users                       │
+│  Programs                    │
+│  Workout Days                │
+│  Exercises                   │
+│  Sessions                    │
+│  Set Logs                    │
 └──────────────────────────────┘
 ```
+
+The React frontend handles workout creation, saved programs, workout tracking, history, and personal records.
+
+FastAPI provides REST endpoints for user management, workout generation, program persistence, workout sessions, and set logging.
+
+PostgreSQL stores users, workout programs, workout days, exercises, workout sessions, and individual set logs.
 
 ---
 
 ## 📁 Project Structure
 
 ```text
-Adaptix/
+personalized-workout-app/
 │
 ├── backend/
 │   ├── __init__.py
@@ -173,7 +180,9 @@ Adaptix/
 │   └── test_workout_sessions.py
 │
 ├── screenshots/
+│   ├── app-overview.png
 │   ├── workout-builder.png
+│   ├── generated-workout.png
 │   ├── saved-programs.png
 │   ├── workout-tracker.png
 │   ├── personal-record.png
@@ -182,13 +191,13 @@ Adaptix/
 │
 ├── .env
 ├── .gitignore
-├── requirements.txt
-└── README.md
+├── README.md
+└── requirements.txt
 ```
 
 ---
 
-## Database Structure
+## 🗄️ Database Structure
 
 Adaptix uses PostgreSQL with six main relational tables.
 
@@ -213,11 +222,11 @@ users
 - `users` — stores user profile information
 - `workout_programs` — stores generated training programs
 - `workout_days` — stores individual workout days
-- `workout_exercises` — stores exercises assigned to each workout
+- `workout_exercises` — stores exercises assigned to each workout day
 - `workout_sessions` — stores started and completed workout sessions
 - `workout_set_logs` — stores individual weight and repetition entries
 
-Workout history keeps exercise and workout names even if an original saved program is later removed.
+Workout history keeps useful exercise and workout information even if an original saved workout program is later removed.
 
 ---
 
@@ -231,13 +240,13 @@ Before running Adaptix, install:
 - npm
 - Git
 
-Python dependencies can be installed using:
+Install the Python dependencies from the project root:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Frontend dependencies can be installed using:
+Install the frontend dependencies:
 
 ```bash
 cd frontend
@@ -286,7 +295,7 @@ Then initialize the Adaptix database schema from the project root:
 python -m backend.init_db
 ```
 
-This creates the required tables defined in:
+This creates the tables defined in:
 
 ```text
 backend/schema.sql
@@ -306,13 +315,13 @@ From the project root:
 python -m uvicorn backend.main:app --reload
 ```
 
-The backend will run at:
+The backend runs at:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-FastAPI Swagger documentation:
+FastAPI Swagger documentation is available at:
 
 ```text
 http://127.0.0.1:8000/docs
@@ -379,7 +388,7 @@ PUT     /api/users/{user_id}/sessions/{session_id}/complete
 
 ## 🧪 Testing
 
-Adaptix includes automated backend testing for:
+Adaptix includes automated backend tests covering:
 
 - Database connectivity
 - User operations
@@ -400,7 +409,7 @@ Run the complete backend test suite from the project root:
 python -m pytest -q
 ```
 
-The project currently contains **29 passing automated backend tests**.
+The current backend test suite contains **29 passing automated tests**.
 
 Frontend validation can be run with:
 
@@ -414,27 +423,43 @@ npm run build
 
 ## 📸 Screenshots
 
+### 🖥️ Application Overview
+
+Adaptix provides a responsive interface for building, managing, and tracking personalized workout programs.
+
+![Adaptix Application Overview](screenshots/app-overview.png)
+
+---
+
 ### 🧠 Personalized Workout Builder
 
-Generate a workout based on your goal, experience level, weekly training frequency, and available equipment.
+Users can configure a workout using their training goal, experience level, weekly schedule, and available equipment.
 
 ![Adaptix Workout Builder](screenshots/workout-builder.png)
 
 ---
 
-### 💾 Saved Workout Programs
+### 🏋️ Generated Workout Program
 
-Generated programs are stored in PostgreSQL and can be viewed again whenever the user returns.
+Adaptix recommends an appropriate training split and generates individual workout days with exercises, sets, rep ranges, and rest periods.
+
+![Adaptix Generated Workout](screenshots/generated-workout.png)
+
+---
+
+### 💾 Saved Programs
+
+Generated workout programs are stored in PostgreSQL and can be reopened and used for future workout sessions.
 
 ![Adaptix Saved Programs](screenshots/saved-programs.png)
 
 ---
 
-### 🏋️ Workout Tracker
+### 📊 Workout Tracker
 
-Track every set individually by entering the weight and number of repetitions performed.
+Workout sessions can be tracked set-by-set by entering the weight and repetitions performed.
 
-Adaptix also displays the user's previous performance and allows previous values to be reused with the **Use Previous** button.
+Adaptix displays previous performance and allows previous weight and repetition values to be reused with the **Use Previous** feature.
 
 ![Adaptix Workout Tracker](screenshots/workout-tracker.png)
 
@@ -442,15 +467,15 @@ Adaptix also displays the user's previous performance and allows previous values
 
 ### 🏆 Personal Record Detection
 
-Adaptix compares newly saved sets with previous workout history and detects when the user exceeds their previous maximum weight for an exercise.
+Adaptix compares newly logged sets with previous workout performance and notifies the user when a new weight-based personal record is achieved.
 
-![Adaptix Personal Record](screenshots/personal-record.png)
+![Adaptix Personal Record Detection](screenshots/personal-record.png)
 
 ---
 
 ### 📚 Workout History
 
-Completed and incomplete workout sessions can be reviewed along with individual exercises, sets, weights, reps, timestamps, and workout notes.
+Completed and incomplete workout sessions can be reviewed along with their logged training performance.
 
 ![Adaptix Workout History](screenshots/workout-history.png)
 
@@ -458,7 +483,7 @@ Completed and incomplete workout sessions can be reviewed along with individual 
 
 ### 🥇 Personal Records
 
-The Personal Records section automatically calculates the heaviest logged performance for every exercise from the user's workout history.
+Adaptix automatically calculates the heaviest logged set for each exercise and displays it in a dedicated Personal Records section.
 
 ![Adaptix Personal Records](screenshots/personal-records.png)
 
@@ -471,13 +496,13 @@ The Personal Records section automatically calculates the heaviest logged perfor
 - Personal records are calculated dynamically from workout history.
 - Previous performance is retrieved from previously completed workout sessions.
 - The **Use Previous** feature fills previous weight and repetition values without automatically saving them.
-- Workout sessions can retain historical exercise information even if the original saved workout program is deleted.
+- Workout sessions retain useful historical exercise information even if the original saved program is deleted.
 - Backend tests use a separate PostgreSQL test database.
 - Adaptix is currently under active development.
 
 ---
 
-## Future Improvements
+## 🔮 Future Improvements
 
 Planned features include:
 
@@ -500,6 +525,7 @@ Computer Engineering student at the Polytechnic University of Puerto Rico.
 
 Interested in software engineering, cybersecurity, IT, embedded systems, and full-stack development.
 
+GitHub: [argenisy28](https://github.com/argenisy28)
 
 ---
 
