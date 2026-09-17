@@ -81,6 +81,8 @@ def clean_test_database(
                     workout_exercises,
                     workout_days,
                     workout_programs,
+                    workout_set_logs,
+                    workout_sessions,
                     users
                 RESTART IDENTITY
                 CASCADE;
