@@ -525,8 +525,6 @@ Computer Engineering student at the Polytechnic University of Puerto Rico.
 
 Interested in software engineering, cybersecurity, IT, embedded systems, and full-stack development.
 
-GitHub: [argenisy28](https://github.com/argenisy28)
-
 ---
 
 ## 📄 License
