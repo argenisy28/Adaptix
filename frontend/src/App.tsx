@@ -4,10 +4,14 @@ import {
   useState,
 } from "react";
 
-import type { FormEvent } from "react";
+import type {
+  FormEvent,
+} from "react";
 
 import "./App.css";
 
+import ExerciseHistory from "./components/ExerciseHistory";
+import PersonalRecords from "./components/PersonalRecords";
 import ProfileBar from "./components/ProfileBar";
 import SavedPrograms from "./components/SavedPrograms";
 import StartScreen from "./components/StartScreen";
@@ -16,8 +20,6 @@ import WorkoutCard from "./components/WorkoutCard";
 import WorkoutForm from "./components/WorkoutForm";
 import WorkoutHistory from "./components/WorkoutHistory";
 import WorkoutTracker from "./components/WorkoutTracker";
-import PersonalRecords from "./components/PersonalRecords";
-
 
 import type {
   ActiveWorkout,
@@ -52,28 +54,30 @@ function App() {
   const [
     currentUser,
     setCurrentUser,
-  ] = useState<User | null>(() => {
-    const storedUser =
-      localStorage.getItem(
-        "workoutUser"
-      );
+  ] = useState<User | null>(
+    () => {
+      const storedUser =
+        localStorage.getItem(
+          "workoutUser"
+        );
 
-    if (!storedUser) {
-      return null;
-    }
+      if (!storedUser) {
+        return null;
+      }
 
-    try {
-      return JSON.parse(
-        storedUser
-      ) as User;
-    } catch {
-      return null;
+      try {
+        return JSON.parse(
+          storedUser
+        ) as User;
+      } catch {
+        return null;
+      }
     }
-  });
+  );
 
 
   // ----------------------------------------------------
-  // Workout form state
+  // Workout form
   // ----------------------------------------------------
 
   const [
@@ -119,11 +123,10 @@ function App() {
   const [
     workout,
     setWorkout,
-  ] = useState<
-    WorkoutResponse | null
-  >(
-    null
-  );
+  ] =
+    useState<WorkoutResponse | null>(
+      null
+    );
 
 
   // ----------------------------------------------------
@@ -133,11 +136,10 @@ function App() {
   const [
     savedPrograms,
     setSavedPrograms,
-  ] = useState<
-    SavedProgram[]
-  >(
-    []
-  );
+  ] =
+    useState<SavedProgram[]>(
+      []
+    );
 
 
   // ----------------------------------------------------
@@ -147,25 +149,38 @@ function App() {
   const [
     workoutHistory,
     setWorkoutHistory,
-  ] = useState<
-    WorkoutHistorySession[]
-  >(
-    []
-  );
+  ] =
+    useState<
+      WorkoutHistorySession[]
+    >(
+      []
+    );
 
 
   // ----------------------------------------------------
-  // Active workout session
+  // Active workout
   // ----------------------------------------------------
 
   const [
     activeWorkout,
     setActiveWorkout,
-  ] = useState<
-    ActiveWorkout | null
-  >(
-    null
-  );
+  ] =
+    useState<ActiveWorkout | null>(
+      null
+    );
+
+
+  // ----------------------------------------------------
+  // Selected exercise history
+  // ----------------------------------------------------
+
+  const [
+    selectedExercise,
+    setSelectedExercise,
+  ] =
+    useState<string | null>(
+      null
+    );
 
 
   // ----------------------------------------------------
@@ -196,11 +211,10 @@ function App() {
   const [
     deletingProgramId,
     setDeletingProgramId,
-  ] = useState<
-    number | null
-  >(
-    null
-  );
+  ] =
+    useState<number | null>(
+      null
+    );
 
 
   // ----------------------------------------------------
@@ -245,59 +259,77 @@ function App() {
   // Check FastAPI connection
   // ----------------------------------------------------
 
-  useEffect(() => {
-    fetch(
-      "http://127.0.0.1:8000/health"
-    )
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error();
-        }
+  useEffect(
+    () => {
+      fetch(
+        "http://127.0.0.1:8000/health"
+      )
+        .then(
+          (response) => {
+            if (
+              !response.ok
+            ) {
+              throw new Error();
+            }
 
-        return response.json();
-      })
-      .then((data) => {
-        setBackendStatus(
-          `Backend status: ${data.status}`
+            return response.json();
+          }
+        )
+        .then(
+          (data) => {
+            setBackendStatus(
+              `Backend status: ${data.status}`
+            );
+          }
+        )
+        .catch(
+          () => {
+            setBackendStatus(
+              "Unable to connect to backend."
+            );
+          }
         );
-      })
-      .catch(() => {
-        setBackendStatus(
-          "Unable to connect to backend."
-        );
-      });
-  }, []);
+    },
+    []
+  );
 
 
   // ----------------------------------------------------
   // Automatically hide success messages
   // ----------------------------------------------------
 
-  useEffect(() => {
-    if (!successMessage) {
-      return;
-    }
+  useEffect(
+    () => {
+      if (
+        !successMessage
+      ) {
+        return;
+      }
 
-    const timeoutId =
-      window.setTimeout(
-        () => {
-          setSuccessMessage("");
-        },
-        3500
-      );
+      const timeoutId =
+        window.setTimeout(
+          () => {
+            setSuccessMessage(
+              ""
+            );
+          },
+          3500
+        );
 
-    return () => {
-      window.clearTimeout(
-        timeoutId
-      );
-    };
-  }, [
-    successMessage,
-  ]);
+      return () => {
+        window.clearTimeout(
+          timeoutId
+        );
+      };
+    },
+    [
+      successMessage,
+    ]
+  );
 
 
   // ----------------------------------------------------
-  // User profile handling
+  // User profile
   // ----------------------------------------------------
 
   function handleUserReady(
@@ -327,6 +359,10 @@ function App() {
     );
 
     setActiveWorkout(
+      null
+    );
+
+    setSelectedExercise(
       null
     );
 
@@ -373,6 +409,10 @@ function App() {
       null
     );
 
+    setSelectedExercise(
+      null
+    );
+
     setError(
       ""
     );
@@ -396,7 +436,7 @@ function App() {
 
 
   // ----------------------------------------------------
-  // Fetch saved programs
+  // Fetch saved workout programs
   // ----------------------------------------------------
 
   const fetchSavedPrograms =
@@ -404,7 +444,9 @@ function App() {
       async (): Promise<
         SavedProgram[]
       > => {
-        if (!currentUser) {
+        if (
+          !currentUser
+        ) {
           return [];
         }
 
@@ -416,7 +458,9 @@ function App() {
         const data =
           await response.json();
 
-        if (!response.ok) {
+        if (
+          !response.ok
+        ) {
           throw new Error(
             data.detail ||
               "Unable to load saved programs."
@@ -426,7 +470,9 @@ function App() {
         const savedData =
           data as SavedProgramsResponse;
 
-        return savedData.programs;
+        return (
+          savedData.programs
+        );
       },
       [
         currentUser,
@@ -435,7 +481,7 @@ function App() {
 
 
   // ----------------------------------------------------
-  // Manual refresh for saved programs
+  // Manually refresh saved programs
   // ----------------------------------------------------
 
   const loadSavedPrograms =
@@ -457,7 +503,9 @@ function App() {
             programs
           );
 
-        } catch (err) {
+        } catch (
+          err
+        ) {
           if (
             err instanceof Error
           ) {
@@ -486,31 +534,41 @@ function App() {
   // Automatically load saved programs
   // ----------------------------------------------------
 
-  useEffect(() => {
-    if (!currentUser) {
-      return;
-    }
+  useEffect(
+    () => {
+      if (
+        !currentUser
+      ) {
+        return;
+      }
 
-    let cancelled =
-      false;
+      let cancelled =
+        false;
 
-    fetchSavedPrograms()
-      .then(
-        (programs) => {
-          if (!cancelled) {
-            setSavedPrograms(
-              programs
-            );
+      fetchSavedPrograms()
+        .then(
+          (programs) => {
+            if (
+              !cancelled
+            ) {
+              setSavedPrograms(
+                programs
+              );
 
-            setSavedError(
-              ""
-            );
+              setSavedError(
+                ""
+              );
+            }
           }
-        }
-      )
-      .catch(
-        (err) => {
-          if (!cancelled) {
+        )
+        .catch(
+          (err) => {
+            if (
+              cancelled
+            ) {
+              return;
+            }
+
             if (
               err instanceof Error
             ) {
@@ -523,17 +581,18 @@ function App() {
               );
             }
           }
-        }
-      );
+        );
 
-    return () => {
-      cancelled =
-        true;
-    };
-  }, [
-    currentUser,
-    fetchSavedPrograms,
-  ]);
+      return () => {
+        cancelled =
+          true;
+      };
+    },
+    [
+      currentUser,
+      fetchSavedPrograms,
+    ]
+  );
 
 
   // ----------------------------------------------------
@@ -545,7 +604,9 @@ function App() {
       async (): Promise<
         WorkoutHistorySession[]
       > => {
-        if (!currentUser) {
+        if (
+          !currentUser
+        ) {
           return [];
         }
 
@@ -557,7 +618,9 @@ function App() {
         const data =
           await response.json();
 
-        if (!response.ok) {
+        if (
+          !response.ok
+        ) {
           throw new Error(
             data.detail ||
               "Unable to load workout history."
@@ -567,7 +630,9 @@ function App() {
         const historyData =
           data as WorkoutHistoryResponse;
 
-        return historyData.sessions;
+        return (
+          historyData.sessions
+        );
       },
       [
         currentUser,
@@ -576,7 +641,7 @@ function App() {
 
 
   // ----------------------------------------------------
-  // Manual workout-history refresh
+  // Manually refresh workout history
   // ----------------------------------------------------
 
   const loadWorkoutHistory =
@@ -598,7 +663,9 @@ function App() {
             sessions
           );
 
-        } catch (err) {
+        } catch (
+          err
+        ) {
           if (
             err instanceof Error
           ) {
@@ -627,31 +694,41 @@ function App() {
   // Automatically load workout history
   // ----------------------------------------------------
 
-  useEffect(() => {
-    if (!currentUser) {
-      return;
-    }
+  useEffect(
+    () => {
+      if (
+        !currentUser
+      ) {
+        return;
+      }
 
-    let cancelled =
-      false;
+      let cancelled =
+        false;
 
-    fetchWorkoutHistory()
-      .then(
-        (sessions) => {
-          if (!cancelled) {
-            setWorkoutHistory(
-              sessions
-            );
+      fetchWorkoutHistory()
+        .then(
+          (sessions) => {
+            if (
+              !cancelled
+            ) {
+              setWorkoutHistory(
+                sessions
+              );
 
-            setHistoryError(
-              ""
-            );
+              setHistoryError(
+                ""
+              );
+            }
           }
-        }
-      )
-      .catch(
-        (err) => {
-          if (!cancelled) {
+        )
+        .catch(
+          (err) => {
+            if (
+              cancelled
+            ) {
+              return;
+            }
+
             if (
               err instanceof Error
             ) {
@@ -664,17 +741,18 @@ function App() {
               );
             }
           }
-        }
-      );
+        );
 
-    return () => {
-      cancelled =
-        true;
-    };
-  }, [
-    currentUser,
-    fetchWorkoutHistory,
-  ]);
+      return () => {
+        cancelled =
+          true;
+      };
+    },
+    [
+      currentUser,
+      fetchWorkoutHistory,
+    ]
+  );
 
 
   // ----------------------------------------------------
@@ -685,7 +763,9 @@ function App() {
     program: SavedProgram,
     day: SavedWorkoutDay
   ) {
-    if (!currentUser) {
+    if (
+      !currentUser
+    ) {
       return;
     }
 
@@ -695,6 +775,10 @@ function App() {
 
     setSuccessMessage(
       ""
+    );
+
+    setSelectedExercise(
+      null
     );
 
     try {
@@ -733,7 +817,9 @@ function App() {
       const data =
         await response.json();
 
-      if (!response.ok) {
+      if (
+        !response.ok
+      ) {
         throw new Error(
           data.detail ||
             "Unable to start workout."
@@ -755,11 +841,16 @@ function App() {
       });
 
       window.scrollTo({
-        top: 0,
-        behavior: "smooth",
+        top:
+          0,
+
+        behavior:
+          "smooth",
       });
 
-    } catch (err) {
+    } catch (
+      err
+    ) {
       if (
         err instanceof Error
       ) {
@@ -780,16 +871,14 @@ function App() {
   // ----------------------------------------------------
 
   function closeActiveWorkout() {
-    if (!activeWorkout) {
-      return;
-    }
-
     const confirmed =
       window.confirm(
-        "Close this workout? Saved sets will remain stored, but the workout will not be marked as completed."
+        "Close this workout? Saved sets will remain in workout history and the session will remain incomplete."
       );
 
-    if (!confirmed) {
+    if (
+      !confirmed
+    ) {
       return;
     }
 
@@ -798,6 +887,14 @@ function App() {
     );
 
     void loadWorkoutHistory();
+
+    window.scrollTo({
+      top:
+        0,
+
+      behavior:
+        "smooth",
+    });
   }
 
 
@@ -817,8 +914,11 @@ function App() {
     void loadWorkoutHistory();
 
     window.scrollTo({
-      top: 0,
-      behavior: "smooth",
+      top:
+        0,
+
+      behavior:
+        "smooth",
     });
   }
 
@@ -830,7 +930,9 @@ function App() {
   async function deleteSavedProgram(
     programId: number
   ) {
-    if (!currentUser) {
+    if (
+      !currentUser
+    ) {
       return;
     }
 
@@ -839,7 +941,9 @@ function App() {
         "Delete this workout program? This cannot be undone."
       );
 
-    if (!confirmed) {
+    if (
+      !confirmed
+    ) {
       return;
     }
 
@@ -868,7 +972,9 @@ function App() {
       const data =
         await response.json();
 
-      if (!response.ok) {
+      if (
+        !response.ok
+      ) {
         throw new Error(
           data.detail ||
             "Unable to delete workout program."
@@ -901,7 +1007,9 @@ function App() {
         "Workout program deleted successfully."
       );
 
-    } catch (err) {
+    } catch (
+      err
+    ) {
       if (
         err instanceof Error
       ) {
@@ -928,13 +1036,13 @@ function App() {
 
   async function handleSubmit(
     event:
-      FormEvent<
-        HTMLFormElement
-      >
+      FormEvent<HTMLFormElement>
   ) {
     event.preventDefault();
 
-    if (!currentUser) {
+    if (
+      !currentUser
+    ) {
       return;
     }
 
@@ -990,7 +1098,9 @@ function App() {
       const data =
         await response.json();
 
-      if (!response.ok) {
+      if (
+        !response.ok
+      ) {
         throw new Error(
           data.detail ||
             "Unable to generate workout."
@@ -1007,7 +1117,9 @@ function App() {
 
       await loadSavedPrograms();
 
-    } catch (err) {
+    } catch (
+      err
+    ) {
       if (
         err instanceof Error
       ) {
@@ -1029,10 +1141,70 @@ function App() {
 
 
   // ----------------------------------------------------
+  // Open exercise-specific history
+  // ----------------------------------------------------
+
+  function openExerciseHistory(
+    exerciseName: string
+  ) {
+    setSelectedExercise(
+      exerciseName
+    );
+
+    window.setTimeout(
+      () => {
+        document
+          .getElementById(
+            "exercise-history"
+          )
+          ?.scrollIntoView({
+            behavior:
+              "smooth",
+
+            block:
+              "start",
+          });
+      },
+      0
+    );
+  }
+
+
+  // ----------------------------------------------------
+  // Close exercise-specific history
+  // ----------------------------------------------------
+
+  function closeExerciseHistory() {
+    setSelectedExercise(
+      null
+    );
+
+    window.setTimeout(
+      () => {
+        document
+          .getElementById(
+            "records"
+          )
+          ?.scrollIntoView({
+            behavior:
+              "smooth",
+
+            block:
+              "start",
+          });
+      },
+      0
+    );
+  }
+
+
+  // ----------------------------------------------------
   // Start screen
   // ----------------------------------------------------
 
-  if (!currentUser) {
+  if (
+    !currentUser
+  ) {
     return (
       <StartScreen
         onUserReady={
@@ -1068,9 +1240,7 @@ function App() {
           aria-live="polite"
         >
 
-          <span
-            className="success-icon"
-          >
+          <span className="success-icon">
             ✓
           </span>
 
@@ -1082,7 +1252,7 @@ function App() {
       )}
 
 
-      {/* Active Workout Tracker */}
+      {/* Active Workout */}
 
       {activeWorkout ? (
 
@@ -1114,9 +1284,7 @@ function App() {
 
           {/* Hero / Header */}
 
-          <header
-            className="header"
-          >
+          <header className="header">
 
             <h1>
               Adaptix
@@ -1124,16 +1292,13 @@ function App() {
 
 
             <p>
-              Training built around
-              your goals, experience,
-              schedule, and available
-              equipment.
+              Training built around your
+              goals, experience, schedule,
+              and available equipment.
             </p>
 
 
-            <span
-              className="backend-status"
-            >
+            <span className="backend-status">
               {backendStatus}
             </span>
 
@@ -1205,9 +1370,7 @@ function App() {
 
 
           {error && (
-            <p
-              className="error-message"
-            >
+            <p className="error-message">
               {error}
             </p>
           )}
@@ -1217,9 +1380,7 @@ function App() {
 
           {workout && (
 
-            <section
-              className="results-section"
-            >
+            <section className="results-section">
 
               <h2>
                 {
@@ -1228,9 +1389,7 @@ function App() {
               </h2>
 
 
-              <div
-                className="program-badges"
-              >
+              <div className="program-badges">
 
                 <span>
                   {
@@ -1239,7 +1398,6 @@ function App() {
                       .split_name
                   }
                 </span>
-
 
                 <span>
                   {
@@ -1250,13 +1408,11 @@ function App() {
                   }
                 </span>
 
-
                 <span>
                   {
                     experienceLevel
                   }
                 </span>
-
 
                 <span>
                   {
@@ -1264,7 +1420,6 @@ function App() {
                   }{" "}
                   Days
                 </span>
-
 
                 <span>
                   {
@@ -1278,15 +1433,12 @@ function App() {
               </div>
 
 
-              <div
-                className="program-summary"
-              >
+              <div className="program-summary">
 
                 <p>
                   <strong>
                     Split:
                   </strong>{" "}
-
                   {
                     workout
                       .recommendation
@@ -1308,7 +1460,6 @@ function App() {
                   <strong>
                     Program ID:
                   </strong>{" "}
-
                   {
                     workout.program_id
                   }
@@ -1317,61 +1468,55 @@ function App() {
               </div>
 
 
-              <div
-                className="workout-grid"
-              >
+              <div className="workout-grid">
 
-                {
-                  workout
-                    .workouts
-                    .map(
-                      (
-                        day,
+                {workout.workouts.map(
+                  (
+                    day,
+                    dayIndex
+                  ) => (
+
+                    <WorkoutCard
+                      key={
                         dayIndex
-                      ) => (
+                      }
 
-                        <WorkoutCard
-                          key={
-                            dayIndex
-                          }
+                      title={
+                        `Day ${
+                          dayIndex + 1
+                        }: ${
+                          day.day_name
+                        }`
+                      }
 
-                          title={
-                            `Day ${
-                              dayIndex + 1
-                            }: ${
-                              day.day_name
-                            }`
-                          }
+                      exercises={
+                        day.exercises.map(
+                          (
+                            exercise,
+                            exerciseIndex
+                          ) => ({
+                            id:
+                              exerciseIndex,
 
-                          exercises={
-                            day.exercises.map(
-                              (
-                                exercise,
-                                exerciseIndex
-                              ) => ({
-                                id:
-                                  exerciseIndex,
+                            name:
+                              exercise.exercise,
 
-                                name:
-                                  exercise.exercise,
+                            sets:
+                              exercise.sets,
 
-                                sets:
-                                  exercise.sets,
+                            reps:
+                              exercise.reps,
 
-                                reps:
-                                  exercise.reps,
+                            restSeconds:
+                              exercise
+                                .rest_seconds,
+                          })
+                        )
+                      }
+                    />
 
-                                restSeconds:
-                                  exercise
-                                    .rest_seconds,
-                              })
-                            )
-                          }
-                        />
-
-                      )
-                    )
-                }
+                  )
+                )}
 
               </div>
 
@@ -1418,34 +1563,58 @@ function App() {
 
 
           {/* Workout History */}
-{/* Workout History */}
 
-<WorkoutHistory
-  sessions={
-    workoutHistory
-  }
+          <WorkoutHistory
+            sessions={
+              workoutHistory
+            }
 
-  loading={
-    loadingHistory
-  }
+            loading={
+              loadingHistory
+            }
 
-  error={
-    historyError
-  }
+            error={
+              historyError
+            }
 
-  onRefresh={
-    loadWorkoutHistory
-  }
-/>
+            onRefresh={
+              loadWorkoutHistory
+            }
+          />
 
 
-{/* Personal Records */}
+          {/* Personal Records */}
 
-<PersonalRecords
-  workoutHistory={
-    workoutHistory
-  }
-/>
+          <PersonalRecords
+            workoutHistory={
+              workoutHistory
+            }
+
+            onViewHistory={
+              openExerciseHistory
+            }
+          />
+
+
+          {/* Exercise-Specific History */}
+
+          {selectedExercise && (
+
+            <ExerciseHistory
+              exerciseName={
+                selectedExercise
+              }
+
+              workoutHistory={
+                workoutHistory
+              }
+
+              onClose={
+                closeExerciseHistory
+              }
+            />
+
+          )}
 
         </>
 

@@ -3554,3 +3554,601 @@ body {
   color: white;
 }
 
+/* ======================================================
+   EXERCISE-SPECIFIC HISTORY
+====================================================== */
+
+.record-history-button {
+  width: 100%;
+  margin-top: 22px;
+  padding: 12px 18px;
+
+  border:
+    1px solid
+    var(--adaptix-blue-border);
+
+  border-radius: 12px;
+
+  background:
+    rgba(77, 163, 255, 0.08);
+
+  color:
+    var(--adaptix-blue-light);
+
+  font: inherit;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.record-history-button:hover {
+  background:
+    rgba(77, 163, 255, 0.15);
+
+  border-color:
+    var(
+      --adaptix-blue-border-strong
+    );
+
+  transform:
+    translateY(-1px);
+}
+
+
+.exercise-history {
+  margin-top: 42px;
+  margin-bottom: 80px;
+
+  padding: 34px;
+
+  border:
+    1px solid
+    rgba(77, 163, 255, 0.12);
+
+  border-radius: 24px;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(77, 163, 255, 0.08),
+      transparent 35%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(17, 24, 33, 0.98),
+      rgba(10, 15, 22, 0.98)
+    );
+}
+
+
+.exercise-history-header {
+  display: flex;
+
+  justify-content:
+    space-between;
+
+  align-items:
+    flex-start;
+
+  gap: 24px;
+
+  margin-bottom: 30px;
+}
+
+
+.exercise-history-label {
+  display: inline-block;
+
+  margin-bottom: 8px;
+
+  color:
+    var(--adaptix-blue-bright);
+
+  font-size: 0.8rem;
+  font-weight: 800;
+
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+
+.exercise-history-header h2 {
+  margin:
+    0 0 8px;
+
+  font-size:
+    clamp(
+      1.8rem,
+      4vw,
+      2.5rem
+    );
+}
+
+
+.exercise-history-header p {
+  margin: 0;
+
+  color: #8995a5;
+}
+
+
+.exercise-history-close {
+  padding:
+    11px 18px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.12);
+
+  border-radius: 12px;
+
+  background:
+    rgba(255, 255, 255, 0.03);
+
+  color: #f4f7fb;
+
+  font: inherit;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+
+.exercise-history-close:hover {
+  border-color:
+    var(--adaptix-blue-border);
+
+  color:
+    var(--adaptix-blue-bright);
+
+  background:
+    rgba(77, 163, 255, 0.08);
+}
+
+
+.exercise-history-list {
+  display: grid;
+
+  gap: 20px;
+}
+
+
+.exercise-history-session {
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(77, 163, 255, 0.1);
+
+  border-radius: 18px;
+
+  background:
+    rgba(255, 255, 255, 0.015);
+}
+
+
+.exercise-history-session-header {
+  display: flex;
+
+  justify-content:
+    space-between;
+
+  align-items: center;
+
+  gap: 20px;
+
+  padding: 22px 24px;
+
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.07);
+}
+
+
+.exercise-history-session-header h3 {
+  margin:
+    0 0 6px;
+
+  font-size: 1.1rem;
+}
+
+
+.exercise-history-session-header p {
+  margin: 0;
+
+  color: #8995a5;
+}
+
+
+.exercise-history-status {
+  padding:
+    7px 11px;
+
+  border:
+    1px solid
+    var(--adaptix-blue-border);
+
+  border-radius: 999px;
+
+  background:
+    rgba(77, 163, 255, 0.08);
+
+  color:
+    var(--adaptix-blue-light);
+
+  font-size: 0.75rem;
+  font-weight: 800;
+
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+
+.exercise-history-table {
+  padding:
+    8px 24px 18px;
+}
+
+
+.exercise-history-row {
+  display: grid;
+
+  grid-template-columns:
+    80px
+    minmax(120px, 1fr)
+    minmax(90px, 0.6fr);
+
+  gap: 16px;
+
+  align-items: center;
+
+  padding:
+    14px 0;
+
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+}
+
+
+.exercise-history-row:last-child {
+  border-bottom: none;
+}
+
+
+.exercise-history-heading {
+  color: #718094;
+
+  font-size: 0.76rem;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+}
+
+
+.exercise-history-row:not(
+  .exercise-history-heading
+) {
+  color: #e9eef5;
+
+  font-weight: 600;
+}
+
+
+.exercise-history-row
+span:nth-child(2) {
+  color:
+    var(--adaptix-blue-light);
+}
+
+
+.exercise-history-empty {
+  padding: 42px;
+
+  border:
+    1px dashed
+    rgba(77, 163, 255, 0.2);
+
+  border-radius: 18px;
+
+  text-align: center;
+
+  background:
+    rgba(77, 163, 255, 0.03);
+}
+
+
+.exercise-history-empty h3 {
+  margin:
+    0 0 8px;
+}
+
+
+.exercise-history-empty p {
+  margin: 0;
+
+  color: #8995a5;
+}
+
+
+@media (
+  max-width: 700px
+) {
+
+  .exercise-history {
+    padding: 22px;
+  }
+
+
+  .exercise-history-header {
+    flex-direction: column;
+  }
+
+
+  .exercise-history-close {
+    width: 100%;
+  }
+
+
+  .exercise-history-session-header {
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+  }
+
+
+  .exercise-history-row {
+    grid-template-columns:
+      55px
+      1fr
+      70px;
+  }
+
+}
+
+/* ======================================================
+   EXERCISE PROGRESS CHART
+====================================================== */
+
+.exercise-progress-chart {
+  margin-bottom: 30px;
+  padding: 26px;
+
+  border:
+    1px solid
+    rgba(77, 163, 255, 0.12);
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(15, 23, 34, 0.94),
+      rgba(10, 16, 24, 0.94)
+    );
+}
+
+
+.progress-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  gap: 24px;
+
+  margin-bottom: 24px;
+}
+
+
+.progress-chart-label {
+  display: inline-block;
+
+  margin-bottom: 6px;
+
+  color: #6cb6ff;
+
+  font-size: 0.74rem;
+  font-weight: 800;
+
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+
+.progress-chart-header h3 {
+  margin: 0 0 6px;
+
+  font-size: 1.5rem;
+}
+
+
+.progress-chart-header p {
+  margin: 0;
+
+  color: #8995a5;
+}
+
+
+.progress-chart-stats {
+  display: flex;
+  gap: 12px;
+
+  flex-wrap: wrap;
+}
+
+
+.progress-stat {
+  min-width: 100px;
+
+  padding: 10px 14px;
+
+  border:
+    1px solid
+    rgba(77, 163, 255, 0.12);
+
+  border-radius: 12px;
+
+  background:
+    rgba(77, 163, 255, 0.05);
+}
+
+
+.progress-stat span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #718094;
+
+  font-size: 0.7rem;
+  font-weight: 800;
+
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+
+.progress-stat strong {
+  color: #dcecff;
+
+  font-size: 0.95rem;
+}
+
+
+.progress-positive {
+  color: #6cb6ff !important;
+}
+
+
+.progress-negative {
+  color: #ff7676 !important;
+}
+
+
+.progress-chart-container {
+  width: 100%;
+  overflow-x: auto;
+
+  padding-top: 8px;
+}
+
+
+.progress-chart-svg {
+  display: block;
+
+  width: 100%;
+  min-width: 640px;
+  height: auto;
+}
+
+
+.progress-grid-line {
+  stroke:
+    rgba(255, 255, 255, 0.07);
+
+  stroke-width: 1;
+}
+
+
+.progress-axis-label,
+.progress-date-label {
+  fill: #718094;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+
+.progress-chart-line {
+  fill: none;
+
+  stroke: #4da3ff;
+
+  stroke-width: 3;
+
+  stroke-linecap: round;
+  stroke-linejoin: round;
+
+  filter:
+    drop-shadow(
+      0 0 7px
+      rgba(77, 163, 255, 0.35)
+    );
+}
+
+
+.progress-chart-point-glow {
+  fill:
+    rgba(77, 163, 255, 0.12);
+}
+
+
+.progress-chart-point {
+  fill: #6cb6ff;
+
+  stroke: #d7ebff;
+
+  stroke-width: 2;
+}
+
+
+.progress-point-value {
+  fill: #b9ddff;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+
+.progress-chart-message {
+  margin:
+    12px 0 0;
+
+  color: #718094;
+
+  font-size: 0.88rem;
+
+  text-align: center;
+}
+
+
+@media (
+  max-width: 700px
+) {
+
+  .progress-chart-header {
+    flex-direction: column;
+  }
+
+
+  .progress-chart-stats {
+    width: 100%;
+  }
+
+
+  .progress-stat {
+    flex: 1;
+  }
+
+
+  .exercise-progress-chart {
+    padding: 20px;
+  }
+
+}
+

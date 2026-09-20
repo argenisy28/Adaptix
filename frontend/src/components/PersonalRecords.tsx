@@ -6,20 +6,22 @@ import type {
 
 type PersonalRecordsProps = {
   workoutHistory: WorkoutHistorySession[];
+
+  onViewHistory: (
+    exerciseName: string
+  ) => void;
 };
 
 
 type ExerciseRecord = {
   exerciseName: string;
-  weight: number;
-  weightUnit: "lb" | "kg";
-  reps: number | null;
-  date: string;
+  set: WorkoutSetLog;
 };
 
 
 function PersonalRecords({
   workoutHistory,
+  onViewHistory,
 }: PersonalRecordsProps) {
   const records =
     getPersonalRecords(
@@ -33,28 +35,25 @@ function PersonalRecords({
       className="records-section"
     >
       <div className="records-header">
-        <div>
-          <span className="records-label">
-            Training milestones
-          </span>
 
-          <h2>
-            Personal Records
-          </h2>
+        <span className="records-label">
+          Training milestones
+        </span>
 
-          <p>
-            Your heaviest logged set for
-            each exercise.
-          </p>
-        </div>
+        <h2>
+          Personal Records
+        </h2>
+
+        <p>
+          Your heaviest logged set for
+          each exercise.
+        </p>
+
       </div>
 
 
       {records.length === 0 ? (
         <div className="records-empty">
-          <span className="records-empty-icon">
-            🏆
-          </span>
 
           <h3>
             No personal records yet
@@ -62,9 +61,10 @@ function PersonalRecords({
 
           <p>
             Complete workouts and log
-            your sets to start building
-            your record board.
+            your sets to begin building
+            your record history.
           </p>
+
         </div>
       ) : (
         <div className="records-grid">
@@ -77,7 +77,9 @@ function PersonalRecords({
                   record.exerciseName
                 }
               >
-                <div className="record-card-top">
+
+                <div className="record-card-header">
+
                   <span className="record-trophy">
                     🏆
                   </span>
@@ -85,65 +87,65 @@ function PersonalRecords({
                   <span className="record-badge">
                     PR
                   </span>
+
                 </div>
 
 
                 <h3>
-                  {
-                    record.exerciseName
-                  }
+                  {record.exerciseName}
                 </h3>
 
 
                 <div className="record-performance">
 
                   <strong>
-                    {
-                      formatWeight(
-                        record.weight
-                      )
-                    }
+                    {formatWeight(
+                      record.set
+                    )}
                   </strong>
 
                   <span>
-                    {
-                      record.weightUnit
-                    }
+                    ×
                   </span>
 
-                  {record.reps !== null && (
-                    <>
-                      <span className="record-divider">
-                        ×
-                      </span>
+                  <strong>
+                    {record.set.reps ?? "—"}
+                  </strong>
 
-                      <strong>
-                        {record.reps}
-                      </strong>
-
-                      <span>
-                        reps
-                      </span>
-                    </>
-                  )}
+                  <span>
+                    reps
+                  </span>
 
                 </div>
 
 
                 <p className="record-date">
                   Set on{" "}
-                  {
-                    formatDate(
-                      record.date
+                  {formatDate(
+                    record.set.created_at
+                  )}
+                </p>
+
+
+                <button
+                  type="button"
+                  className="record-history-button"
+                  onClick={() =>
+                    onViewHistory(
+                      record.exerciseName
                     )
                   }
-                </p>
+                >
+                  View History
+                </button>
+
               </article>
             )
           )}
 
         </div>
       )}
+
     </section>
   );
 }
@@ -152,121 +154,117 @@ function PersonalRecords({
 function getPersonalRecords(
   workoutHistory:
     WorkoutHistorySession[]
-) {
+): ExerciseRecord[] {
   const records =
     new Map<
       string,
-      ExerciseRecord
+      WorkoutSetLog
     >();
 
 
-  workoutHistory.forEach(
-    (session) => {
-
-      session.sets.forEach(
-        (set) => {
-
-          if (
-            !set.completed ||
-            set.weight === null
-          ) {
-            return;
-          }
-
-
-          const currentRecord =
-            records.get(
-              set.exercise_name
-            );
+  for (
+    const session
+    of workoutHistory
+  ) {
+    for (
+      const set
+      of session.sets
+    ) {
+      if (
+        !set.completed ||
+        set.weight === null
+      ) {
+        continue;
+      }
 
 
-          if (
-            !currentRecord ||
-            set.weight >
-              currentRecord.weight
-          ) {
-            records.set(
-              set.exercise_name,
-              createRecord(
-                set,
-                session.started_at
-              )
-            );
-
-            return;
-          }
+      const existingRecord =
+        records.get(
+          set.exercise_name
+        );
 
 
-          // If the weight is tied,
-          // prefer the set with more reps.
-          if (
-            set.weight ===
-              currentRecord.weight &&
-            set.reps !== null &&
-            (
-              currentRecord.reps ===
-                null ||
-              set.reps >
-                currentRecord.reps
-            )
-          ) {
-            records.set(
-              set.exercise_name,
-              createRecord(
-                set,
-                session.started_at
-              )
-            );
-          }
-        }
-      );
+      if (!existingRecord) {
+        records.set(
+          set.exercise_name,
+          set
+        );
+
+        continue;
+      }
+
+
+      const currentWeight =
+        set.weight;
+
+      const recordWeight =
+        existingRecord.weight ?? 0;
+
+
+      const currentReps =
+        set.reps ?? 0;
+
+      const recordReps =
+        existingRecord.reps ?? 0;
+
+
+      if (
+        currentWeight >
+          recordWeight ||
+        (
+          currentWeight ===
+            recordWeight &&
+          currentReps >
+            recordReps
+        )
+      ) {
+        records.set(
+          set.exercise_name,
+          set
+        );
+      }
     }
-  );
+  }
 
 
   return Array.from(
-    records.values()
-  ).sort(
-    (a, b) =>
-      a.exerciseName.localeCompare(
-        b.exerciseName
-      )
-  );
-}
-
-
-function createRecord(
-  set: WorkoutSetLog,
-  date: string
-): ExerciseRecord {
-  return {
-    exerciseName:
-      set.exercise_name,
-
-    weight:
-      set.weight ?? 0,
-
-    weightUnit:
-      set.weight_unit,
-
-    reps:
-      set.reps,
-
-    date,
-  };
+    records.entries()
+  )
+    .map(
+      ([
+        exerciseName,
+        set,
+      ]) => ({
+        exerciseName,
+        set,
+      })
+    )
+    .sort(
+      (a, b) =>
+        a.exerciseName.localeCompare(
+          b.exerciseName
+        )
+    );
 }
 
 
 function formatWeight(
-  weight: number
+  set: WorkoutSetLog
 ) {
-  if (
-    Number.isInteger(weight)
-  ) {
-    return weight.toString();
+  if (set.weight === null) {
+    return "—";
   }
 
-  return weight.toFixed(1);
+
+  const weight =
+    Number.isInteger(
+      set.weight
+    )
+      ? set.weight.toString()
+      : set.weight.toFixed(1);
+
+
+  return `${weight} ${set.weight_unit}`;
 }
 
 
@@ -278,14 +276,9 @@ function formatDate(
   ).toLocaleDateString(
     [],
     {
-      month:
-        "short",
-
-      day:
-        "numeric",
-
-      year:
-        "numeric",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     }
   );
 }
