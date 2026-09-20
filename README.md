@@ -1,35 +1,126 @@
 # Adaptix 🏋️
 
-A full-stack personalized workout application built with React, TypeScript, FastAPI, and PostgreSQL.
+A full-stack personalized workout planning and training analytics application built with React, TypeScript, FastAPI, and PostgreSQL.
 
-Adaptix generates workout programs based on a user's training goals, experience level, weekly availability, and available equipment. Users can save programs, track workouts set-by-set, compare previous performance, reuse previous weights and reps, detect personal records, and review their workout history.
+Adaptix generates personalized workout programs based on a user's training goals, experience level, weekly availability, and available equipment. Beyond workout generation, the application provides an end-to-end training workflow with saved programs, workout session tracking, set logging, previous-performance recall, personal record detection, workout history, exercise-specific analytics, progress charts, dashboard statistics, and persistent lb/kg unit preferences.
 
 ---
 
 ## ✨ Features
 
-- 🧠 Generate personalized workout programs based on:
+### 🧠 Personalized Workout Generation
+
+- Generate workout programs based on:
   - Training goal
   - Experience level
   - Training days per week
   - Available equipment
-- 👤 Persistent user profiles
-- 💾 Save generated workout programs
-- 📋 View previously saved workout programs
-- 🗑️ Delete saved programs
-- 🏋️ Start individual workout sessions
-- 📊 Log weight and repetitions for every set
-- ⏱️ Track workout start and completion times
-- 📝 Add notes to workout sessions
-- 🔁 View previous performance for each exercise
-- ↩️ Reuse previous weights and reps with the **Use Previous** feature
-- 🏆 Detect new personal records while training
-- 📚 Review completed and incomplete workout history
-- 🥇 Personal Records section showing the best logged performance for each exercise
-- 📱 Responsive React interface
-- 🗄️ PostgreSQL database for persistent storage
-- 🧪 Automated backend testing with pytest
-- 🔐 Database credentials protected with a `.env` file
+- Automatically recommend an appropriate training split
+- Generate exercises, sets, repetition ranges, and rest periods
+- Save generated programs to PostgreSQL
+
+### 👤 User Experience
+
+- Persistent user profiles
+- Responsive dark interface
+- Blue Adaptix visual theme
+- Top navigation for:
+  - Dashboard
+  - Workout Builder
+  - Saved Programs
+  - Workout History
+  - Personal Records
+- Persistent lb/kg preference using Local Storage
+
+### 💾 Workout Program Management
+
+- Save generated workout programs
+- View previously saved programs
+- Reopen programs for future workouts
+- Start individual workout days
+- Delete saved programs
+
+### 🏋️ Workout Tracking
+
+- Start and complete workout sessions
+- Log weight and repetitions for every set
+- Track workout start and completion times
+- Add notes to workout sessions
+- Track saved and unsaved sets
+- Review previous performance for each exercise
+- Reuse previous weights and repetitions with **Use Previous**
+- Automatically detect new weight-based personal records
+
+### 📚 Workout History
+
+- Review completed and incomplete workout sessions
+- View:
+  - Program name
+  - Workout day
+  - Date
+  - Start time
+  - Duration
+  - Logged sets
+  - Workout notes
+- Group historical sets by exercise
+- Automatically convert historical weights into the currently selected lb/kg preference
+
+### 🥇 Personal Record Analytics
+
+- Automatically determine the strongest logged performance for each exercise
+- Display:
+  - Current personal record
+  - Previous best
+  - Estimated 1RM
+  - Improvement from previous PR
+  - Total sets logged
+  - Date achieved
+- Open exercise-specific history directly from each PR card
+
+### 📈 Exercise Progress Analytics
+
+- Exercise-specific training history
+- Interactive progress visualization
+- Switch between:
+  - **Weight**
+  - **Estimated 1RM**
+- Display:
+  - Sessions completed
+  - Starting performance
+  - Current performance
+  - Best performance
+  - Absolute change
+  - Percentage improvement
+- Highlight the best recorded performance
+- Review individual historical sets below the chart
+
+### 📊 Training Dashboard
+
+- Completed workouts
+- Total sets logged
+- Exercises tracked
+- Personal records tracked
+- Latest completed workout
+- Weekly activity over the previous four weeks
+
+### ⚖️ lb / kg Support
+
+- Persistent global weight-unit preference
+- Save new workout sets in either pounds or kilograms
+- Automatically convert historical data for display
+- Convert previous-performance values
+- Unit-aware **Use Previous**
+- Mixed-unit personal record comparisons
+- Unit-aware PR analytics and progress charts
+- Original database values remain stored in their original units
+
+### 🧪 Testing and Data
+
+- PostgreSQL persistent storage
+- Dedicated PostgreSQL test database
+- Automated backend testing with pytest
+- Frontend linting and production-build validation
+- Database credentials protected with `.env`
 
 ---
 
@@ -44,6 +135,7 @@ Adaptix generates workout programs based on a user's training goals, experience 
 - Fetch API
 - React Hooks
 - Local Storage
+- SVG-based progress visualization
 
 ### Backend
 
@@ -65,6 +157,8 @@ Adaptix generates workout programs based on a user's training goals, experience 
 - pytest
 - FastAPI TestClient
 - Dedicated PostgreSQL test database
+- ESLint
+- Vite production builds
 
 ### Development Tools
 
@@ -78,49 +172,56 @@ Adaptix generates workout programs based on a user's training goals, experience 
 ## 🏗️ Architecture
 
 ```text
-┌──────────────────────────────┐
-│      React + TypeScript      │
-│           Frontend           │
-│                              │
-│  Workout Builder             │
-│  Saved Programs              │
-│  Workout Tracker             │
-│  Workout History             │
-│  Personal Records            │
-└──────────────┬───────────────┘
-               │
-               │ HTTP / JSON
-               ▼
-┌──────────────────────────────┐
-│           FastAPI            │
-│           Backend            │
-│                              │
-│  User Management             │
-│  Workout Generation          │
-│  Program Management          │
-│  Session Tracking            │
-│  Set Logging                 │
-└──────────────┬───────────────┘
-               │
-               │ SQL
-               ▼
-┌──────────────────────────────┐
-│         PostgreSQL           │
-│                              │
-│  Users                       │
-│  Programs                    │
-│  Workout Days                │
-│  Exercises                   │
-│  Sessions                    │
-│  Set Logs                    │
-└──────────────────────────────┘
+┌────────────────────────────────────┐
+│         React + TypeScript         │
+│              Frontend              │
+│                                    │
+│  Training Dashboard                │
+│  Workout Builder                   │
+│  Saved Programs                    │
+│  Workout Tracker                   │
+│  Workout History                   │
+│  Personal Records                  │
+│  Exercise History                  │
+│  Progress Analytics                │
+│  lb / kg Preferences               │
+└──────────────────┬─────────────────┘
+                   │
+                   │ HTTP / JSON
+                   ▼
+┌────────────────────────────────────┐
+│              FastAPI               │
+│              Backend               │
+│                                    │
+│  User Management                   │
+│  Workout Generation                │
+│  Program Management                │
+│  Session Tracking                  │
+│  Set Logging                       │
+│  Workout History                   │
+└──────────────────┬─────────────────┘
+                   │
+                   │ SQL
+                   ▼
+┌────────────────────────────────────┐
+│             PostgreSQL             │
+│                                    │
+│  Users                             │
+│  Workout Programs                  │
+│  Workout Days                      │
+│  Workout Exercises                 │
+│  Workout Sessions                  │
+│  Workout Set Logs                  │
+└────────────────────────────────────┘
 ```
 
-The React frontend handles workout creation, saved programs, workout tracking, history, and personal records.
+The React frontend manages workout creation, saved programs, training sessions, historical performance, analytics, charts, and user preferences.
 
-FastAPI provides REST endpoints for user management, workout generation, program persistence, workout sessions, and set logging.
+FastAPI provides REST endpoints for user management, workout generation, program persistence, workout sessions, set logging, and workout history.
 
-PostgreSQL stores users, workout programs, workout days, exercises, workout sessions, and individual set logs.
+PostgreSQL provides relational persistent storage for user profiles, workout programs, individual workout days, exercises, workout sessions, and set-level performance data.
+
+Historical weight values remain stored using the unit in which they were originally logged. The frontend converts those values dynamically according to the user's current lb/kg preference.
 
 ---
 
@@ -148,11 +249,15 @@ personalized-workout-app/
 │   │
 │   ├── src/
 │   │   ├── components/
+│   │   │   ├── ExerciseHistory.tsx
+│   │   │   ├── ExerciseProgressChart.tsx
 │   │   │   ├── PersonalRecords.tsx
 │   │   │   ├── ProfileBar.tsx
 │   │   │   ├── SavedPrograms.tsx
 │   │   │   ├── StartScreen.tsx
 │   │   │   ├── TopNav.tsx
+│   │   │   ├── TrainingDashboard.tsx
+│   │   │   ├── WeightUnitToggle.tsx
 │   │   │   ├── WorkoutCard.tsx
 │   │   │   ├── WorkoutForm.tsx
 │   │   │   ├── WorkoutHistory.tsx
@@ -160,6 +265,9 @@ personalized-workout-app/
 │   │   │
 │   │   ├── types/
 │   │   │   └── workout.ts
+│   │   │
+│   │   ├── utils/
+│   │   │   └── weight.ts
 │   │   │
 │   │   ├── App.css
 │   │   ├── App.tsx
@@ -180,14 +288,14 @@ personalized-workout-app/
 │   └── test_workout_sessions.py
 │
 ├── screenshots/
-│   ├── app-overview.png
-│   ├── workout-builder.png
-│   ├── generated-workout.png
-│   ├── saved-programs.png
-│   ├── workout-tracker.png
-│   ├── personal-record.png
-│   ├── workout-history.png
-│   └── personal-records.png
+│   ├── 01-dashboard.png
+│   ├── 02-workout-builder.png
+│   ├── 03-generated-workout.png
+│   ├── 04-saved-programs.png
+│   ├── 05-workout-tracker.png
+│   ├── 06-workout-history.png
+│   ├── 07-personal-records.png
+│   └── 08-exercise-progress.png
 │
 ├── .env
 ├── .gitignore
@@ -226,7 +334,9 @@ users
 - `workout_sessions` — stores started and completed workout sessions
 - `workout_set_logs` — stores individual weight and repetition entries
 
-Workout history keeps useful exercise and workout information even if an original saved workout program is later removed.
+Workout history retains useful exercise and workout information even if an original saved workout program is later removed.
+
+Weight logs also retain the unit in which each set was originally recorded, allowing Adaptix to support mixed lb/kg history while dynamically converting values for display.
 
 ---
 
@@ -421,81 +531,130 @@ npm run build
 
 ---
 
-## 📸 Screenshots
+# 📸 Screenshots
 
-### 🖥️ Application Overview
+## 📊 Training Dashboard
 
-Adaptix provides a responsive interface for building, managing, and tracking personalized workout programs.
+The Adaptix dashboard provides an overview of training activity, including completed workouts, logged sets, tracked exercises, personal records, the latest completed workout, and recent weekly activity.
 
-![Adaptix Application Overview](screenshots/app-overview.png)
-
----
-
-### 🧠 Personalized Workout Builder
-
-Users can configure a workout using their training goal, experience level, weekly schedule, and available equipment.
-
-![Adaptix Workout Builder](screenshots/workout-builder.png)
+![Adaptix Training Dashboard](screenshots/01-dashboard.png)
 
 ---
 
-### 🏋️ Generated Workout Program
+## 🧠 Personalized Workout Builder
 
-Adaptix recommends an appropriate training split and generates individual workout days with exercises, sets, rep ranges, and rest periods.
+Users can configure a workout program using their training goal, experience level, weekly schedule, and available equipment.
 
-![Adaptix Generated Workout](screenshots/generated-workout.png)
-
----
-
-### 💾 Saved Programs
-
-Generated workout programs are stored in PostgreSQL and can be reopened and used for future workout sessions.
-
-![Adaptix Saved Programs](screenshots/saved-programs.png)
+![Adaptix Workout Builder](screenshots/02-workout-builder.png)
 
 ---
 
-### 📊 Workout Tracker
+## 🏋️ Generated Workout Program
 
-Workout sessions can be tracked set-by-set by entering the weight and repetitions performed.
+Adaptix recommends an appropriate training split and generates individual workout days containing exercises, sets, repetition ranges, and rest periods.
 
-Adaptix displays previous performance and allows previous weight and repetition values to be reused with the **Use Previous** feature.
-
-![Adaptix Workout Tracker](screenshots/workout-tracker.png)
+![Adaptix Generated Workout](screenshots/03-generated-workout.png)
 
 ---
 
-### 🏆 Personal Record Detection
+## 💾 Saved Programs
 
-Adaptix compares newly logged sets with previous workout performance and notifies the user when a new weight-based personal record is achieved.
+Generated workout programs are persisted in PostgreSQL and can be reopened to start future workout sessions.
 
-![Adaptix Personal Record Detection](screenshots/personal-record.png)
-
----
-
-### 📚 Workout History
-
-Completed and incomplete workout sessions can be reviewed along with their logged training performance.
-
-![Adaptix Workout History](screenshots/workout-history.png)
+![Adaptix Saved Programs](screenshots/04-saved-programs.png)
 
 ---
 
-### 🥇 Personal Records
+## 🏋️ Workout Tracker
 
-Adaptix automatically calculates the heaviest logged set for each exercise and displays it in a dedicated Personal Records section.
+The workout tracker provides set-by-set weight and repetition logging.
 
-![Adaptix Personal Records](screenshots/personal-records.png)
+Adaptix retrieves previous exercise performance and provides a **Use Previous** feature for quickly reusing prior weights and repetitions. New sets are also compared against historical performance for personal-record detection.
+
+The selected lb/kg preference is respected while entering new training data and reviewing previous performance.
+
+![Adaptix Workout Tracker](screenshots/05-workout-tracker.png)
 
 ---
 
-## 💡 Notes
+## 📚 Workout History
+
+Completed and incomplete workout sessions can be reviewed along with their program, workout day, duration, exercises, sets, repetitions, and notes.
+
+Historical weights automatically convert to the user's currently selected lb/kg preference without modifying the originally stored workout data.
+
+![Adaptix Workout History](screenshots/06-workout-history.png)
+
+---
+
+## 🥇 Personal Records
+
+Adaptix analyzes workout history to identify the strongest logged performance for each exercise.
+
+Each Personal Record card includes the current best performance, estimated 1RM, previous best, improvement, number of logged sets, and date achieved.
+
+![Adaptix Personal Records](screenshots/07-personal-records.png)
+
+---
+
+## 📈 Exercise Progress Analytics
+
+Each tracked exercise has its own history and performance analytics.
+
+Users can switch between **Weight** and **Estimated 1RM** views while reviewing session count, starting performance, current performance, best performance, absolute change, percentage improvement, and historical sets.
+
+![Adaptix Exercise Progress Analytics](screenshots/08-exercise-progress.png)
+
+---
+
+## ⚖️ Weight Unit System
+
+Adaptix supports both pounds and kilograms through a persistent global preference.
+
+Changing the selected unit dynamically updates:
+
+- Workout tracker weight inputs
+- Previous performance
+- **Use Previous** values
+- Workout history
+- Personal Records
+- Estimated 1RM
+- Exercise history
+- Progress charts
+- PR comparisons
+
+Historical database entries remain stored using their original units and are converted only when displayed.
+
+This allows workout history containing both lb and kg entries to be compared correctly.
+
+---
+
+## 🧮 Estimated 1RM
+
+Adaptix uses the Epley formula to estimate one-repetition maximum strength from logged sets:
+
+```text
+Estimated 1RM = Weight × (1 + Repetitions / 30)
+```
+
+For single-repetition sets, the logged weight itself is treated as the estimated 1RM.
+
+The application evaluates completed sets from each training session to determine the strongest estimated 1RM for progress analytics.
+
+---
+
+## 💡 Implementation Notes
 
 - `.env` is Git-ignored to protect PostgreSQL credentials.
 - Workout data is persisted using PostgreSQL.
 - Personal records are calculated dynamically from workout history.
+- PR comparisons normalize mixed lb/kg values before comparing performance.
 - Previous performance is retrieved from previously completed workout sessions.
-- The **Use Previous** feature fills previous weight and repetition values without automatically saving them.
+- **Use Previous** converts historical weight values into the currently selected unit before filling workout inputs.
+- Changing the lb/kg preference does not rewrite historical database records.
+- Weight conversion logic is centralized in a reusable frontend utility.
+- Exercise-specific progress charts are generated from logged workout history.
+- Estimated 1RM analytics use completed set data.
 - Workout sessions retain useful historical exercise information even if the original saved program is deleted.
 - Backend tests use a separate PostgreSQL test database.
 - Adaptix is currently under active development.
@@ -504,15 +663,20 @@ Adaptix automatically calculates the heaviest logged set for each exercise and d
 
 ## 🔮 Future Improvements
 
-Planned features include:
+Planned future improvements include:
 
-- 📈 Exercise-specific progress charts
-- 📊 Training dashboard and statistics
-- 🔍 Exercise-specific workout history
-- 🏆 Expanded personal-record analytics
-- ⚖️ Support for both pounds and kilograms
-- 🔐 Full authentication and authorization
-- 📱 Additional mobile UI improvements
+- 🔐 Secure authentication and authorization
+- 🔑 Password hashing and session/token-based authentication
+- ✏️ Workout and program editing
+- ➕ Custom exercise creation
+- 🔍 Exercise search and filtering
+- 📊 Expanded training-volume analytics
+- 🔥 Workout streak tracking
+- 📅 Calendar-based workout history
+- 📱 Additional mobile workout UX improvements
+- 🧪 Automated frontend component and integration testing
+- 🤖 AI-assisted workout recommendations
+- ☁️ Cloud-hosted PostgreSQL database
 - 🌐 Production deployment
 
 ---
@@ -524,6 +688,7 @@ Planned features include:
 Computer Engineering student at the Polytechnic University of Puerto Rico.
 
 Interested in software engineering, cybersecurity, IT, embedded systems, and full-stack development.
+
 
 ---
 
