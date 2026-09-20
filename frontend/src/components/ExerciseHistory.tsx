@@ -1,27 +1,42 @@
 import ExerciseProgressChart from "./ExerciseProgressChart";
 
 import type {
+  WeightUnit,
   WorkoutHistorySession,
   WorkoutSetLog,
 } from "../types/workout";
 
+import {
+  convertWeight,
+  formatWeightNumber,
+} from "../utils/weight";
+
 
 type ExerciseHistoryProps = {
   exerciseName: string;
-  workoutHistory: WorkoutHistorySession[];
+
+  workoutHistory:
+    WorkoutHistorySession[];
+
+  weightUnit: WeightUnit;
+
   onClose: () => void;
 };
 
 
 type ExerciseSession = {
-  session: WorkoutHistorySession;
-  sets: WorkoutSetLog[];
+  session:
+    WorkoutHistorySession;
+
+  sets:
+    WorkoutSetLog[];
 };
 
 
 function ExerciseHistory({
   exerciseName,
   workoutHistory,
+  weightUnit,
   onClose,
 }: ExerciseHistoryProps) {
   const exerciseSessions =
@@ -36,8 +51,6 @@ function ExerciseHistory({
       className="exercise-history"
       id="exercise-history"
     >
-
-      {/* Header */}
 
       <div className="exercise-history-header">
 
@@ -72,19 +85,20 @@ function ExerciseHistory({
       </div>
 
 
-      {/* Progress Chart */}
-
       <ExerciseProgressChart
         exerciseName={
           exerciseName
         }
+
         workoutHistory={
           workoutHistory
         }
+
+        weightUnit={
+          weightUnit
+        }
       />
 
-
-      {/* Exercise History */}
 
       {exerciseSessions.length === 0 ? (
 
@@ -119,8 +133,6 @@ function ExerciseHistory({
                 }
               >
 
-                {/* Session Header */}
-
                 <div className="exercise-history-session-header">
 
                   <div>
@@ -150,8 +162,6 @@ function ExerciseHistory({
 
                 </div>
 
-
-                {/* Set Table */}
 
                 <div className="exercise-history-table">
 
@@ -195,7 +205,8 @@ function ExerciseHistory({
 
                         <span>
                           {formatWeight(
-                            set
+                            set,
+                            weightUnit
                           )}
                         </span>
 
@@ -269,7 +280,8 @@ function getExerciseSessions(
 
 
 function formatWeight(
-  set: WorkoutSetLog
+  set: WorkoutSetLog,
+  weightUnit: WeightUnit
 ) {
   if (
     set.weight === null
@@ -278,17 +290,17 @@ function formatWeight(
   }
 
 
-  const weight =
-    Number.isInteger(
-      set.weight
-    )
-      ? set.weight.toString()
-      : set.weight.toFixed(
-          1
-        );
+  const convertedWeight =
+    convertWeight(
+      set.weight,
+      set.weight_unit,
+      weightUnit
+    );
 
 
-  return `${weight} ${set.weight_unit}`;
+  return `${formatWeightNumber(
+    convertedWeight
+  )} ${weightUnit}`;
 }
 
 

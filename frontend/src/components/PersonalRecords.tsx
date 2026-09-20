@@ -1,11 +1,19 @@
 import type {
+  WeightUnit,
   WorkoutHistorySession,
   WorkoutSetLog,
 } from "../types/workout";
 
+import {
+  convertWeight,
+  formatWeightNumber,
+} from "../utils/weight";
+
 
 type PersonalRecordsProps = {
   workoutHistory: WorkoutHistorySession[];
+
+  weightUnit: WeightUnit;
 
   onViewHistory: (
     exerciseName: string
@@ -35,11 +43,13 @@ type ExerciseRecord = {
 
 function PersonalRecords({
   workoutHistory,
+  weightUnit,
   onViewHistory,
 }: PersonalRecordsProps) {
   const records =
     getPersonalRecords(
-      workoutHistory
+      workoutHistory,
+      weightUnit
     );
 
 
@@ -98,8 +108,6 @@ function PersonalRecords({
                 }
               >
 
-                {/* Header */}
-
                 <div className="record-card-header">
 
                   <span className="record-trophy">
@@ -113,20 +121,17 @@ function PersonalRecords({
                 </div>
 
 
-                {/* Exercise */}
-
                 <h3>
                   {record.exerciseName}
                 </h3>
 
 
-                {/* Current Record */}
-
                 <div className="record-performance">
 
                   <strong>
                     {formatWeight(
-                      record.currentRecord
+                      record.currentRecord,
+                      weightUnit
                     )}
                   </strong>
 
@@ -149,8 +154,6 @@ function PersonalRecords({
                 </div>
 
 
-                {/* Analytics */}
-
                 <div className="record-analytics">
 
                   <div className="record-analytic">
@@ -161,17 +164,11 @@ function PersonalRecords({
 
                     <strong>
                       {
-                        record
-                          .estimatedOneRepMax !==
+                        record.estimatedOneRepMax !==
                         null
-                          ? `${formatNumber(
-                              record
-                                .estimatedOneRepMax
-                            )} ${
-                              record
-                                .currentRecord
-                                .weight_unit
-                            }`
+                          ? `${formatWeightNumber(
+                              record.estimatedOneRepMax
+                            )} ${weightUnit}`
                           : "—"
                       }
                     </strong>
@@ -189,7 +186,8 @@ function PersonalRecords({
                       {
                         record.previousRecord
                           ? formatWeight(
-                              record.previousRecord
+                              record.previousRecord,
+                              weightUnit
                             )
                           : "First PR"
                       }
@@ -217,13 +215,14 @@ function PersonalRecords({
                       {
                         record.improvement !==
                         null
-                          ? `${record.improvement > 0 ? "+" : ""}${formatNumber(
+                          ? `${
+                              record.improvement >
+                              0
+                                ? "+"
+                                : ""
+                            }${formatWeightNumber(
                               record.improvement
-                            )} ${
-                              record
-                                .currentRecord
-                                .weight_unit
-                            }`
+                            )} ${weightUnit}`
                           : "—"
                       }
                     </strong>
@@ -248,8 +247,6 @@ function PersonalRecords({
                 </div>
 
 
-                {/* Date */}
-
                 <p className="record-date">
                   Set on{" "}
                   {formatDate(
@@ -258,8 +255,6 @@ function PersonalRecords({
                   )}
                 </p>
 
-
-                {/* History */}
 
                 <button
                   type="button"
@@ -289,7 +284,8 @@ function PersonalRecords({
 
 function getPersonalRecords(
   workoutHistory:
-    WorkoutHistorySession[]
+    WorkoutHistorySession[],
+  weightUnit: WeightUnit
 ): ExerciseRecord[] {
   const exerciseSets =
     new Map<
@@ -385,7 +381,8 @@ function getPersonalRecords(
       if (
         isBetterSet(
           set,
-          bestSet
+          bestSet,
+          weightUnit
         )
       ) {
         bestSet =
@@ -419,14 +416,35 @@ function getPersonalRecords(
         : null;
 
 
-    const improvement =
-      previousRecord &&
-      previousRecord.weight !==
-        null &&
+    const currentWeight =
       currentRecord.weight !==
-        null
-        ? currentRecord.weight -
-          previousRecord.weight
+      null
+        ? convertWeight(
+            currentRecord.weight,
+            currentRecord.weight_unit,
+            weightUnit
+          )
+        : null;
+
+
+    const previousWeight =
+      previousRecord?.weight !==
+      null &&
+      previousRecord?.weight !==
+        undefined
+        ? convertWeight(
+            previousRecord.weight,
+            previousRecord.weight_unit,
+            weightUnit
+          )
+        : null;
+
+
+    const improvement =
+      currentWeight !== null &&
+      previousWeight !== null
+        ? currentWeight -
+          previousWeight
         : null;
 
 
@@ -439,7 +457,8 @@ function getPersonalRecords(
 
       estimatedOneRepMax:
         calculateEstimatedOneRepMax(
-          currentRecord
+          currentRecord,
+          weightUnit
         ),
 
       improvement,
@@ -461,13 +480,33 @@ function getPersonalRecords(
 
 function isBetterSet(
   candidate: WorkoutSetLog,
-  currentBest: WorkoutSetLog
+  currentBest: WorkoutSetLog,
+  weightUnit: WeightUnit
 ) {
+  if (
+    candidate.weight ===
+      null ||
+    currentBest.weight ===
+      null
+  ) {
+    return false;
+  }
+
+
   const candidateWeight =
-    candidate.weight ?? 0;
+    convertWeight(
+      candidate.weight,
+      candidate.weight_unit,
+      weightUnit
+    );
+
 
   const currentWeight =
-    currentBest.weight ?? 0;
+    convertWeight(
+      currentBest.weight,
+      currentBest.weight_unit,
+      weightUnit
+    );
 
 
   if (
@@ -486,22 +525,16 @@ function isBetterSet(
   }
 
 
-  const candidateReps =
-    candidate.reps ?? 0;
-
-  const currentReps =
-    currentBest.reps ?? 0;
-
-
   return (
-    candidateReps >
-    currentReps
+    (candidate.reps ?? 0) >
+    (currentBest.reps ?? 0)
   );
 }
 
 
 function calculateEstimatedOneRepMax(
-  set: WorkoutSetLog
+  set: WorkoutSetLog,
+  weightUnit: WeightUnit
 ) {
   if (
     set.weight === null ||
@@ -512,15 +545,23 @@ function calculateEstimatedOneRepMax(
   }
 
 
+  const convertedWeight =
+    convertWeight(
+      set.weight,
+      set.weight_unit,
+      weightUnit
+    );
+
+
   if (
     set.reps === 1
   ) {
-    return set.weight;
+    return convertedWeight;
   }
 
 
   return (
-    set.weight *
+    convertedWeight *
     (
       1 +
       set.reps / 30
@@ -530,7 +571,8 @@ function calculateEstimatedOneRepMax(
 
 
 function formatWeight(
-  set: WorkoutSetLog
+  set: WorkoutSetLog,
+  weightUnit: WeightUnit
 ) {
   if (
     set.weight === null
@@ -539,27 +581,17 @@ function formatWeight(
   }
 
 
-  return `${formatNumber(
-    set.weight
-  )} ${set.weight_unit}`;
-}
+  const convertedWeight =
+    convertWeight(
+      set.weight,
+      set.weight_unit,
+      weightUnit
+    );
 
 
-function formatNumber(
-  value: number
-) {
-  if (
-    Number.isInteger(
-      value
-    )
-  ) {
-    return value.toString();
-  }
-
-
-  return value.toFixed(
-    1
-  );
+  return `${formatWeightNumber(
+    convertedWeight
+  )} ${weightUnit}`;
 }
 
 

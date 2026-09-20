@@ -29,6 +29,7 @@ import type {
   SavedWorkoutDay,
   StartWorkoutSessionResponse,
   User,
+  WeightUnit,
   WorkoutHistoryResponse,
   WorkoutHistorySession,
   WorkoutResponse,
@@ -128,6 +129,25 @@ function App() {
     useState<WorkoutResponse | null>(
       null
     );
+
+  const [
+    weightUnit,
+    setWeightUnit,
+  ] =
+    useState<WeightUnit>(
+    () => {
+      const savedUnit =
+        localStorage.getItem(
+          "adaptixWeightUnit"
+        );
+
+      return savedUnit === "kg"
+        ? "kg"
+        : "lb";
+    }
+  );
+
+
 
 
   // ----------------------------------------------------
@@ -383,6 +403,21 @@ function App() {
       ""
     );
   }
+
+  function handleWeightUnitChange(
+  unit: WeightUnit
+) {
+  setWeightUnit(
+    unit
+  );
+
+  localStorage.setItem(
+    "adaptixWeightUnit",
+    unit
+  );
+}
+
+
 
 
   function handleSignOut() {
@@ -1229,6 +1264,14 @@ function App() {
         user={
           currentUser
         }
+
+        weightUnit={
+          weightUnit
+        }
+
+        onWeightUnitChange={
+          handleWeightUnitChange
+        }
       />
 
 
@@ -1268,6 +1311,10 @@ function App() {
 
           workoutHistory={
             workoutHistory
+          }
+
+          weightUnit={
+            weightUnit
           }
 
           onWorkoutCompleted={
@@ -1587,6 +1634,10 @@ function App() {
               historyError
             }
 
+            weightUnit={
+              weightUnit
+            }
+
             onRefresh={
               loadWorkoutHistory
             }
@@ -1598,6 +1649,10 @@ function App() {
           <PersonalRecords
             workoutHistory={
               workoutHistory
+            }
+
+            weightUnit={
+              weightUnit
             }
 
             onViewHistory={
@@ -1617,6 +1672,10 @@ function App() {
 
               workoutHistory={
                 workoutHistory
+              }
+
+              weightUnit={
+                weightUnit
               }
 
               onClose={

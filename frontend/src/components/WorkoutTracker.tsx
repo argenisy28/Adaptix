@@ -6,8 +6,14 @@ import {
 
 import type {
   ActiveWorkout,
+  WeightUnit,
   WorkoutHistorySession,
 } from "../types/workout";
+
+import {
+  convertWeight,
+  formatWeightNumber,
+} from "../utils/weight";
 
 
 type WorkoutTrackerProps = {
@@ -16,6 +22,8 @@ type WorkoutTrackerProps = {
   activeWorkout: ActiveWorkout;
 
   workoutHistory: WorkoutHistorySession[];
+
+  weightUnit: WeightUnit;
 
   onWorkoutCompleted: () => void;
 
@@ -32,6 +40,8 @@ type SetEntry = {
 
   weight: string;
 
+  weightUnit: WeightUnit;
+
   reps: string;
 
   saved: boolean;
@@ -44,6 +54,7 @@ function WorkoutTracker({
   userId,
   activeWorkout,
   workoutHistory,
+  weightUnit,
   onWorkoutCompleted,
   onCancel,
 }: WorkoutTrackerProps) {
@@ -59,38 +70,48 @@ function WorkoutTracker({
   // ----------------------------------------------------
 
   const initialSets =
-    useMemo<SetEntry[]>(() => {
-      return day.exercises.flatMap(
-        (exercise) =>
-          Array.from(
-            {
-              length: exercise.sets,
-            },
-            (_, index) => ({
-              exerciseId:
-                exercise.id,
+    useMemo<SetEntry[]>(
+      () => {
+        return day.exercises.flatMap(
+          (exercise) =>
+            Array.from(
+              {
+                length:
+                  exercise.sets,
+              },
+              (_, index) => ({
+                exerciseId:
+                  exercise.id,
 
-              exerciseName:
-                exercise.exercise_name,
+                exerciseName:
+                  exercise.exercise_name,
 
-              setNumber:
-                index + 1,
+                setNumber:
+                  index + 1,
 
-              weight:
-                "",
+                weight:
+                  "",
 
-              reps:
-                "",
+                weightUnit:
+                  weightUnit,
 
-              saved:
-                false,
+                reps:
+                  "",
 
-              saving:
-                false,
-            })
-          )
-      );
-    }, [day]);
+                saved:
+                  false,
+
+                saving:
+                  false,
+              })
+            )
+        );
+      },
+      [
+        day,
+        weightUnit,
+      ]
+    );
 
 
   // ----------------------------------------------------
@@ -100,9 +121,10 @@ function WorkoutTracker({
   const [
     sets,
     setSets,
-  ] = useState<SetEntry[]>(
-    initialSets
-  );
+  ] =
+    useState<SetEntry[]>(
+      initialSets
+    );
 
 
   const [
@@ -141,27 +163,36 @@ function WorkoutTracker({
   // Automatically hide PR notification
   // ----------------------------------------------------
 
-  useEffect(() => {
-    if (!prMessage) {
-      return;
-    }
+  useEffect(
+    () => {
+      if (
+        !prMessage
+      ) {
+        return;
+      }
 
-    const timeoutId =
-      window.setTimeout(
-        () => {
-          setPrMessage("");
-        },
-        4000
-      );
 
-    return () => {
-      window.clearTimeout(
-        timeoutId
-      );
-    };
-  }, [
-    prMessage,
-  ]);
+      const timeoutId =
+        window.setTimeout(
+          () => {
+            setPrMessage(
+              ""
+            );
+          },
+          4000
+        );
+
+
+      return () => {
+        window.clearTimeout(
+          timeoutId
+        );
+      };
+    },
+    [
+      prMessage,
+    ]
+  );
 
 
   // ----------------------------------------------------
@@ -172,19 +203,36 @@ function WorkoutTracker({
     exerciseName: string
   ) {
     const previousSession =
-      workoutHistory.find(
-        (historySession) =>
-          historySession.completed_at !==
-            null &&
-          historySession.sets.some(
-            (set) =>
-              set.exercise_name ===
-              exerciseName
-          )
-      );
+      [...workoutHistory]
+        .filter(
+          (
+            historySession
+          ) =>
+            historySession.completed_at !==
+              null &&
+            historySession.sets.some(
+              (set) =>
+                set.exercise_name ===
+                  exerciseName &&
+                set.completed
+            )
+        )
+        .sort(
+          (a, b) =>
+            new Date(
+              b.completed_at ??
+                b.started_at
+            ).getTime() -
+            new Date(
+              a.completed_at ??
+                a.started_at
+            ).getTime()
+        )[0];
 
 
-    if (!previousSession) {
+    if (
+      !previousSession
+    ) {
       return [];
     }
 
@@ -193,7 +241,8 @@ function WorkoutTracker({
       .filter(
         (set) =>
           set.exercise_name ===
-          exerciseName
+            exerciseName &&
+          set.completed
       )
       .sort(
         (a, b) =>
@@ -204,7 +253,7 @@ function WorkoutTracker({
 
 
   // ----------------------------------------------------
-  // Format previous set
+  // Format previous set in current display unit
   // ----------------------------------------------------
 
   function formatPreviousSet(
@@ -225,13 +274,16 @@ function WorkoutTracker({
       );
 
 
-    if (!previousSet) {
+    if (
+      !previousSet
+    ) {
       return "—";
     }
 
 
     if (
-      previousSet.weight === null
+      previousSet.weight ===
+      null
     ) {
       return (
         `${previousSet.reps ?? 0} reps`
@@ -239,9 +291,18 @@ function WorkoutTracker({
     }
 
 
+    const convertedWeight =
+      convertWeight(
+        previousSet.weight,
+        previousSet.weight_unit,
+        weightUnit
+      );
+
+
     return (
-      `${previousSet.weight} ` +
-      `${previousSet.weight_unit} × ` +
+      `${formatWeightNumber(
+        convertedWeight
+      )} ${weightUnit} × ` +
       `${previousSet.reps ?? 0}`
     );
   }
@@ -262,7 +323,8 @@ function WorkoutTracker({
 
 
     if (
-      previousSets.length === 0
+      previousSets.length ===
+      0
     ) {
       return;
     }
@@ -289,8 +351,29 @@ function WorkoutTracker({
               );
 
 
-            if (!previousSet) {
+            if (
+              !previousSet
+            ) {
               return currentSet;
+            }
+
+
+            let convertedWeight =
+              currentSet.weight;
+
+
+            if (
+              previousSet.weight !==
+              null
+            ) {
+              convertedWeight =
+                formatInputWeight(
+                  convertWeight(
+                    previousSet.weight,
+                    previousSet.weight_unit,
+                    weightUnit
+                  )
+                );
             }
 
 
@@ -298,12 +381,10 @@ function WorkoutTracker({
               ...currentSet,
 
               weight:
-                previousSet.weight !==
-                null
-                  ? String(
-                      previousSet.weight
-                    )
-                  : currentSet.weight,
+                convertedWeight,
+
+              weightUnit:
+                weightUnit,
 
               reps:
                 previousSet.reps !==
@@ -318,22 +399,81 @@ function WorkoutTracker({
     );
 
 
-    setError("");
+    setError(
+      ""
+    );
+  }
+
+
+  // ----------------------------------------------------
+  // Get displayed weight
+  //
+  // The actual saved entry can remain in its original
+  // unit while the UI displays the user's selected unit.
+  // ----------------------------------------------------
+
+  function getDisplayWeight(
+    entry: SetEntry
+  ) {
+    if (
+      entry.weight.trim() ===
+      ""
+    ) {
+      return "";
+    }
+
+
+    const numericWeight =
+      Number(
+        entry.weight
+      );
+
+
+    if (
+      Number.isNaN(
+        numericWeight
+      )
+    ) {
+      return entry.weight;
+    }
+
+
+    if (
+      entry.weightUnit ===
+      weightUnit
+    ) {
+      return entry.weight;
+    }
+
+
+    return formatInputWeight(
+      convertWeight(
+        numericWeight,
+        entry.weightUnit,
+        weightUnit
+      )
+    );
   }
 
 
   // ----------------------------------------------------
   // Find best historical/current weight
+  //
+  // Everything is converted into targetUnit before
+  // comparing values.
   // ----------------------------------------------------
 
   function getBestPreviousWeight(
     exerciseId: number,
     exerciseName: string,
-    currentSetNumber: number
+    currentSetNumber: number,
+    targetUnit: WeightUnit
   ) {
     const historyWeights =
       workoutHistory.flatMap(
-        (historySession) =>
+        (
+          historySession
+        ) =>
           historySession.sets
             .filter(
               (set) =>
@@ -345,7 +485,11 @@ function WorkoutTracker({
             )
             .map(
               (set) =>
-                set.weight as number
+                convertWeight(
+                  set.weight as number,
+                  set.weight_unit,
+                  targetUnit
+                )
             )
       );
 
@@ -363,16 +507,34 @@ function WorkoutTracker({
               ""
         )
         .map(
-          (set) =>
-            Number(
-              set.weight
-            )
+          (set) => {
+            const numericWeight =
+              Number(
+                set.weight
+              );
+
+
+            if (
+              Number.isNaN(
+                numericWeight
+              )
+            ) {
+              return null;
+            }
+
+
+            return convertWeight(
+              numericWeight,
+              set.weightUnit,
+              targetUnit
+            );
+          }
         )
         .filter(
-          (weight) =>
-            !Number.isNaN(
-              weight
-            )
+          (
+            value
+          ): value is number =>
+            value !== null
         );
 
 
@@ -403,7 +565,9 @@ function WorkoutTracker({
   function updateSet(
     exerciseId: number,
     setNumber: number,
-    field: "weight" | "reps",
+    field:
+      | "weight"
+      | "reps",
     value: string
   ) {
     setSets(
@@ -411,18 +575,37 @@ function WorkoutTracker({
         previousSets.map(
           (set) => {
             if (
-              set.exerciseId ===
-                exerciseId &&
-              set.setNumber ===
+              set.exerciseId !==
+                exerciseId ||
+              set.setNumber !==
                 setNumber
+            ) {
+              return set;
+            }
+
+
+            if (
+              field ===
+              "weight"
             ) {
               return {
                 ...set,
-                [field]: value,
+
+                weight:
+                  value,
+
+                weightUnit:
+                  weightUnit,
               };
             }
 
-            return set;
+
+            return {
+              ...set,
+
+              reps:
+                value,
+            };
           }
         )
     );
@@ -444,8 +627,10 @@ function WorkoutTracker({
 
 
     if (
-      entry.weight.trim() === "" ||
-      entry.reps.trim() === ""
+      entry.weight.trim() ===
+        "" ||
+      entry.reps.trim() ===
+        ""
     ) {
       setError(
         "Enter both weight and reps before saving the set."
@@ -455,10 +640,11 @@ function WorkoutTracker({
     }
 
 
-    const weight =
+    const enteredWeight =
       Number(
         entry.weight
       );
+
 
     const reps =
       Number(
@@ -468,9 +654,9 @@ function WorkoutTracker({
 
     if (
       Number.isNaN(
-        weight
+        enteredWeight
       ) ||
-      weight < 0
+      enteredWeight < 0
     ) {
       setError(
         "Weight must be a valid number."
@@ -494,17 +680,35 @@ function WorkoutTracker({
     }
 
 
+    // Convert the stored entry into the currently
+    // selected unit before saving if necessary.
+
+    const weight =
+      entry.weightUnit ===
+        weightUnit
+        ? enteredWeight
+        : convertWeight(
+            enteredWeight,
+            entry.weightUnit,
+            weightUnit
+          );
+
+
     // Find the best weight before this set
     // is marked as saved.
+
     const previousBestWeight =
       getBestPreviousWeight(
         entry.exerciseId,
         entry.exerciseName,
-        entry.setNumber
+        entry.setNumber,
+        weightUnit
       );
 
 
-    setError("");
+    setError(
+      ""
+    );
 
 
     setSets(
@@ -517,7 +721,9 @@ function WorkoutTracker({
               entry.setNumber
               ? {
                   ...set,
-                  saving: true,
+
+                  saving:
+                    true,
                 }
               : set
         )
@@ -552,7 +758,7 @@ function WorkoutTracker({
                   weight,
 
                 weight_unit:
-                  "lb",
+                  weightUnit,
 
                 reps:
                   reps,
@@ -595,8 +801,20 @@ function WorkoutTracker({
                 entry.setNumber
                 ? {
                     ...set,
-                    saved: true,
-                    saving: false,
+
+                    weight:
+                      formatInputWeight(
+                        weight
+                      ),
+
+                    weightUnit:
+                      weightUnit,
+
+                    saved:
+                      true,
+
+                    saving:
+                      false,
                   }
                 : set
           )
@@ -607,11 +825,16 @@ function WorkoutTracker({
         isNewPR
       ) {
         setPrMessage(
-          `New ${entry.exerciseName} PR — ${weight} lb × ${reps}`
+          `New ${entry.exerciseName} PR — ` +
+          `${formatWeightNumber(
+            weight
+          )} ${weightUnit} × ${reps}`
         );
       }
 
-    } catch (err) {
+    } catch (
+      err
+    ) {
       setSets(
         (previousSets) =>
           previousSets.map(
@@ -622,7 +845,9 @@ function WorkoutTracker({
                 entry.setNumber
                 ? {
                     ...set,
-                    saving: false,
+
+                    saving:
+                      false,
                   }
                 : set
           )
@@ -657,7 +882,8 @@ function WorkoutTracker({
 
 
     if (
-      unsavedSets.length > 0
+      unsavedSets.length >
+      0
     ) {
       const confirmed =
         window.confirm(
@@ -721,7 +947,9 @@ function WorkoutTracker({
 
       onWorkoutCompleted();
 
-    } catch (err) {
+    } catch (
+      err
+    ) {
       if (
         err instanceof Error
       ) {
@@ -815,6 +1043,15 @@ function WorkoutTracker({
           )}
         </span>
 
+
+        <span>
+          Unit:{" "}
+
+          <strong>
+            {weightUnit}
+          </strong>
+        </span>
+
       </div>
 
 
@@ -823,6 +1060,7 @@ function WorkoutTracker({
       ---------------------------------------------- */}
 
       {prMessage && (
+
         <div
           className="pr-message"
           role="status"
@@ -848,6 +1086,7 @@ function WorkoutTracker({
           </div>
 
         </div>
+
       )}
 
 
@@ -856,9 +1095,11 @@ function WorkoutTracker({
       ---------------------------------------------- */}
 
       {error && (
+
         <p className="error-message">
           {error}
         </p>
+
       )}
 
 
@@ -870,7 +1111,6 @@ function WorkoutTracker({
 
         {day.exercises.map(
           (exercise) => {
-
             const exerciseSets =
               sets.filter(
                 (set) =>
@@ -1003,7 +1243,9 @@ function WorkoutTracker({
                             step="0.5"
                             placeholder="0"
                             value={
-                              entry.weight
+                              getDisplayWeight(
+                                entry
+                              )
                             }
                             disabled={
                               entry.saved
@@ -1021,7 +1263,9 @@ function WorkoutTracker({
 
 
                           <span>
-                            lb
+                            {
+                              weightUnit
+                            }
                           </span>
 
                         </div>
@@ -1195,6 +1439,23 @@ function WorkoutTracker({
 
     </section>
   );
+}
+
+
+// ----------------------------------------------------
+// Format converted weight for editable inputs
+// ----------------------------------------------------
+
+function formatInputWeight(
+  weight: number
+) {
+  const rounded =
+    Math.round(
+      weight * 100
+    ) / 100;
+
+
+  return rounded.toString();
 }
 
 

@@ -1,3 +1,7 @@
+export type WeightUnit =
+  | "lb"
+  | "kg";
+
 export type User = {
   id: number;
   name: string;
@@ -19,6 +23,7 @@ export type WorkoutDay = {
   day_name: string;
   exercises: Exercise[];
 };
+
 
 
 export type WorkoutResponse = {
@@ -96,7 +101,7 @@ export type WorkoutSetLog = {
   exercise_name: string;
   set_number: number;
   weight: number | null;
-  weight_unit: "lb" | "kg";
+  weight_unit: WeightUnit;
   reps: number | null;
   completed: boolean;
   created_at: string;

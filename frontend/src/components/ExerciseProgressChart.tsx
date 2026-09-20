@@ -1,38 +1,79 @@
+import {
+  useState,
+} from "react";
+
 import type {
+  WeightUnit,
   WorkoutHistorySession,
+  WorkoutSetLog,
 } from "../types/workout";
+
+import {
+  convertWeight,
+  formatWeightNumber,
+} from "../utils/weight";
 
 
 type ExerciseProgressChartProps = {
   exerciseName: string;
-  workoutHistory: WorkoutHistorySession[];
+
+  workoutHistory:
+    WorkoutHistorySession[];
+
+  weightUnit: WeightUnit;
 };
+
+
+type ChartMode =
+  | "weight"
+  | "estimatedOneRepMax";
 
 
 type ProgressPoint = {
   sessionId: number;
+
   date: string;
+
   weight: number;
+
   reps: number | null;
-  weightUnit: "lb" | "kg";
+
+  estimatedOneRepMax:
+    number;
 };
 
 
 function ExerciseProgressChart({
   exerciseName,
   workoutHistory,
+  weightUnit,
 }: ExerciseProgressChartProps) {
-  const points =
-    getProgressPoints(
-      exerciseName,
-      workoutHistory
+  const [
+    chartMode,
+    setChartMode,
+  ] =
+    useState<ChartMode>(
+      "weight"
     );
 
 
-  if (points.length === 0) {
+  const points =
+    getProgressPoints(
+      exerciseName,
+      workoutHistory,
+      weightUnit
+    );
+
+
+  if (
+    points.length === 0
+  ) {
     return null;
   }
 
+
+  const firstPoint =
+    points[0];
 
   const latestPoint =
     points[
@@ -40,47 +81,79 @@ function ExerciseProgressChart({
     ];
 
 
-  const personalRecord =
-    points.reduce(
-      (best, point) => {
-        if (
-          point.weight >
-          best.weight
-        ) {
-          return point;
-        }
+  const getValue = (
+    point: ProgressPoint
+  ) =>
+    chartMode ===
+    "weight"
+      ? point.weight
+      : point.estimatedOneRepMax;
 
-        if (
-          point.weight ===
-            best.weight &&
-          (point.reps ?? 0) >
-            (best.reps ?? 0)
-        ) {
-          return point;
-        }
 
-        return best;
-      },
-      points[0]
+  const firstValue =
+    getValue(
+      firstPoint
+    );
+
+  const latestValue =
+    getValue(
+      latestPoint
     );
 
 
-  const firstPoint =
-    points[0];
-
-
   const totalChange =
-    latestPoint.weight -
-    firstPoint.weight;
+    latestValue -
+    firstValue;
 
 
-  const chartWidth = 900;
-  const chartHeight = 320;
+  const percentImprovement =
+    firstValue > 0
+      ? (
+          totalChange /
+          firstValue
+        ) *
+        100
+      : 0;
 
-  const paddingLeft = 70;
-  const paddingRight = 35;
-  const paddingTop = 35;
-  const paddingBottom = 55;
+
+  const bestValue =
+    Math.max(
+      ...points.map(
+        (point) =>
+          getValue(
+            point
+          )
+      )
+    );
+
+
+  const values =
+    points.map(
+      (point) =>
+        getValue(
+          point
+        )
+    );
+
+
+  const chartWidth =
+    900;
+
+  const chartHeight =
+    320;
+
+  const paddingLeft =
+    70;
+
+  const paddingRight =
+    35;
+
+  const paddingTop =
+    40;
+
+  const paddingBottom =
+    55;
+
 
   const plotWidth =
     chartWidth -
@@ -93,32 +166,25 @@ function ExerciseProgressChart({
     paddingBottom;
 
 
-  const weights =
-    points.map(
-      (point) =>
-        point.weight
-    );
-
-
-  const minimumWeight =
+  const minimumValue =
     Math.min(
-      ...weights
+      ...values
     );
 
-  const maximumWeight =
+  const maximumValue =
     Math.max(
-      ...weights
+      ...values
     );
 
 
-  const weightRange =
-    maximumWeight -
-    minimumWeight;
+  const valueRange =
+    maximumValue -
+    minimumValue;
 
 
   const paddingAmount =
     Math.max(
-      weightRange * 0.2,
+      valueRange * 0.2,
       10
     );
 
@@ -126,19 +192,19 @@ function ExerciseProgressChart({
   const yMinimum =
     Math.max(
       0,
-      minimumWeight -
+      minimumValue -
         paddingAmount
     );
 
-
   const yMaximum =
-    maximumWeight +
+    maximumValue +
     paddingAmount;
 
 
   const yRange =
     yMaximum -
-    yMinimum || 1;
+      yMinimum ||
+    1;
 
 
   function getX(
@@ -153,11 +219,15 @@ function ExerciseProgressChart({
       );
     }
 
+
     return (
       paddingLeft +
       (
         index /
-        (points.length - 1)
+        (
+          points.length -
+          1
+        )
       ) *
         plotWidth
     );
@@ -165,14 +235,14 @@ function ExerciseProgressChart({
 
 
   function getY(
-    weight: number
+    value: number
   ) {
     return (
       paddingTop +
       (
         1 -
         (
-          weight -
+          value -
           yMinimum
         ) /
           yRange
@@ -189,11 +259,17 @@ function ExerciseProgressChart({
           point,
           index
         ) =>
-          `${getX(index)},${getY(
-            point.weight
+          `${getX(
+            index
+          )},${getY(
+            getValue(
+              point
+            )
           )}`
       )
-      .join(" ");
+      .join(
+        " "
+      );
 
 
   const yTicks =
@@ -201,17 +277,23 @@ function ExerciseProgressChart({
       {
         length: 5,
       },
-      (_, index) => {
+      (
+        _,
+        index
+      ) => {
         const percentage =
           index / 4;
+
 
         const value =
           yMaximum -
           percentage *
             yRange;
 
+
         return {
           value,
+
           y:
             paddingTop +
             percentage *
@@ -227,6 +309,7 @@ function ExerciseProgressChart({
       <div className="progress-chart-header">
 
         <div>
+
           <span className="progress-chart-label">
             Performance trend
           </span>
@@ -236,77 +319,135 @@ function ExerciseProgressChart({
           </h3>
 
           <p>
-            Heaviest logged set from
-            each workout.
+            Track your performance
+            across completed training
+            sessions.
           </p>
-        </div>
-
-
-        <div className="progress-chart-stats">
-
-          <div className="progress-stat">
-            <span>
-              Latest
-            </span>
-
-            <strong>
-              {
-                latestPoint.weight
-              }{" "}
-              {
-                latestPoint.weightUnit
-              }
-            </strong>
-          </div>
-
-
-          <div className="progress-stat">
-            <span>
-              PR
-            </span>
-
-            <strong>
-              {
-                personalRecord.weight
-              }{" "}
-              {
-                personalRecord.weightUnit
-              }
-            </strong>
-          </div>
-
-
-          <div className="progress-stat">
-            <span>
-              Change
-            </span>
-
-            <strong
-              className={
-                totalChange > 0
-                  ? "progress-positive"
-                  : totalChange < 0
-                    ? "progress-negative"
-                    : ""
-              }
-            >
-              {
-                totalChange > 0
-                  ? "+"
-                  : ""
-              }
-              {
-                formatNumber(
-                  totalChange
-                )
-              }{" "}
-              {
-                latestPoint.weightUnit
-              }
-            </strong>
-          </div>
 
         </div>
+
+
+        <div className="progress-chart-toggle">
+
+          <button
+            type="button"
+            className={
+              chartMode ===
+              "weight"
+                ? "progress-toggle-button active"
+                : "progress-toggle-button"
+            }
+            onClick={() =>
+              setChartMode(
+                "weight"
+              )
+            }
+          >
+            Weight
+          </button>
+
+
+          <button
+            type="button"
+            className={
+              chartMode ===
+              "estimatedOneRepMax"
+                ? "progress-toggle-button active"
+                : "progress-toggle-button"
+            }
+            onClick={() =>
+              setChartMode(
+                "estimatedOneRepMax"
+              )
+            }
+          >
+            Estimated 1RM
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div className="progress-metrics-grid">
+
+        <ProgressMetric
+          label="Sessions"
+          value={
+            points.length.toString()
+          }
+        />
+
+
+        <ProgressMetric
+          label="Starting"
+          value={
+            `${formatWeightNumber(
+              firstValue
+            )} ${weightUnit}`
+          }
+        />
+
+
+        <ProgressMetric
+          label="Current"
+          value={
+            `${formatWeightNumber(
+              latestValue
+            )} ${weightUnit}`
+          }
+        />
+
+
+        <ProgressMetric
+          label="Best"
+          value={
+            `${formatWeightNumber(
+              bestValue
+            )} ${weightUnit}`
+          }
+        />
+
+
+        <ProgressMetric
+          label="Change"
+          value={
+            `${
+              totalChange > 0
+                ? "+"
+                : ""
+            }${formatWeightNumber(
+              totalChange
+            )} ${weightUnit}`
+          }
+          positive={
+            totalChange > 0
+          }
+          negative={
+            totalChange < 0
+          }
+        />
+
+
+        <ProgressMetric
+          label="Improvement"
+          value={
+            `${
+              percentImprovement >
+              0
+                ? "+"
+                : ""
+            }${formatWeightNumber(
+              percentImprovement
+            )}%`
+          }
+          positive={
+            percentImprovement > 0
+          }
+          negative={
+            percentImprovement < 0
+          }
+        />
 
       </div>
 
@@ -320,17 +461,21 @@ function ExerciseProgressChart({
           }
           role="img"
           aria-label={
-            `${exerciseName} weight progress chart`
+            `${exerciseName} ${
+              chartMode ===
+              "weight"
+                ? "weight"
+                : "estimated one rep max"
+            } progress chart`
           }
         >
-
-          {/* Horizontal grid lines */}
 
           {yTicks.map(
             (
               tick,
               index
             ) => (
+
               <g
                 key={
                   index
@@ -354,6 +499,7 @@ function ExerciseProgressChart({
                   }
                 />
 
+
                 <text
                   className="progress-axis-label"
                   x={
@@ -366,44 +512,57 @@ function ExerciseProgressChart({
                   textAnchor="end"
                 >
                   {
-                    Math.round(
+                    formatWeightNumber(
                       tick.value
                     )
                   }
                 </text>
 
               </g>
+
             )
           )}
 
 
-          {/* Progress line */}
+          {points.length >
+            1 && (
 
-          {points.length > 1 && (
             <polyline
               className="progress-chart-line"
               points={
                 polylinePoints
               }
             />
+
           )}
 
-
-          {/* Data points */}
 
           {points.map(
             (
               point,
               index
             ) => {
+              const value =
+                getValue(
+                  point
+                );
+
 
               const x =
-                getX(index);
+                getX(
+                  index
+                );
 
               const y =
                 getY(
-                  point.weight
+                  value
                 );
+
+
+              const isBest =
+                value ===
+                bestValue;
+
 
               return (
                 <g
@@ -414,25 +573,42 @@ function ExerciseProgressChart({
                 >
 
                   <circle
-                    className="progress-chart-point-glow"
+                    className={
+                      isBest
+                        ? "progress-chart-point-glow progress-best-glow"
+                        : "progress-chart-point-glow"
+                    }
                     cx={
                       x
                     }
                     cy={
                       y
                     }
-                    r="11"
+                    r={
+                      isBest
+                        ? 13
+                        : 11
+                    }
                   />
 
+
                   <circle
-                    className="progress-chart-point"
+                    className={
+                      isBest
+                        ? "progress-chart-point progress-best-point"
+                        : "progress-chart-point"
+                    }
                     cx={
                       x
                     }
                     cy={
                       y
                     }
-                    r="5"
+                    r={
+                      isBest
+                        ? 6
+                        : 5
+                    }
                   />
 
 
@@ -442,15 +618,17 @@ function ExerciseProgressChart({
                       x
                     }
                     y={
-                      y - 16
+                      y - 17
                     }
                     textAnchor="middle"
                   >
                     {
-                      point.weight
+                      formatWeightNumber(
+                        value
+                      )
                     }{" "}
                     {
-                      point.weightUnit
+                      weightUnit
                     }
                   </text>
 
@@ -483,12 +661,31 @@ function ExerciseProgressChart({
       </div>
 
 
-      {points.length === 1 && (
+      <div className="progress-chart-footer">
+
+        <span className="progress-chart-legend-dot" />
+
+        <span>
+          {
+            chartMode ===
+            "weight"
+              ? "Heaviest logged set from each session"
+              : "Best estimated 1RM from each session"
+          }
+        </span>
+
+      </div>
+
+
+      {points.length ===
+        1 && (
+
         <p className="progress-chart-message">
           Log this exercise in more
-          workouts to build a progress
-          trend.
+          workouts to build a complete
+          progress trend.
         </p>
+
       )}
 
     </section>
@@ -496,10 +693,68 @@ function ExerciseProgressChart({
 }
 
 
+type ProgressMetricProps = {
+  label: string;
+
+  value: string;
+
+  positive?: boolean;
+
+  negative?: boolean;
+};
+
+
+function ProgressMetric({
+  label,
+  value,
+  positive = false,
+  negative = false,
+}: ProgressMetricProps) {
+  let className =
+    "progress-metric-value";
+
+
+  if (
+    positive
+  ) {
+    className +=
+      " progress-positive";
+  }
+
+
+  if (
+    negative
+  ) {
+    className +=
+      " progress-negative";
+  }
+
+
+  return (
+    <div className="progress-metric">
+
+      <span>
+        {label}
+      </span>
+
+      <strong
+        className={
+          className
+        }
+      >
+        {value}
+      </strong>
+
+    </div>
+  );
+}
+
+
 function getProgressPoints(
   exerciseName: string,
   workoutHistory:
-    WorkoutHistorySession[]
+    WorkoutHistorySession[],
+  weightUnit: WeightUnit
 ): ProgressPoint[] {
   const points:
     ProgressPoint[] = [];
@@ -515,56 +770,39 @@ function getProgressPoints(
           set.exercise_name ===
             exerciseName &&
           set.completed &&
-          set.weight !== null
+          set.weight !== null &&
+          set.reps !== null &&
+          set.reps > 0
       );
 
 
     if (
-      exerciseSets.length === 0
+      exerciseSets.length ===
+      0
     ) {
       continue;
     }
 
 
     const heaviestSet =
-      exerciseSets.reduce(
-        (
-          best,
-          set
-        ) => {
-          const bestWeight =
-            best.weight ?? 0;
-
-          const setWeight =
-            set.weight ?? 0;
+      getHeaviestSet(
+        exerciseSets,
+        weightUnit
+      );
 
 
-          if (
-            setWeight >
-            bestWeight
-          ) {
-            return set;
-          }
-
-
-          if (
-            setWeight ===
-              bestWeight &&
-            (set.reps ?? 0) >
-              (best.reps ?? 0)
-          ) {
-            return set;
-          }
-
-
-          return best;
-        }
+    const bestEstimatedSet =
+      getBestEstimatedOneRepMaxSet(
+        exerciseSets,
+        weightUnit
       );
 
 
     if (
       heaviestSet.weight ===
-      null
+        null ||
+      bestEstimatedSet.weight ===
+        null
     ) {
       continue;
     }
@@ -578,13 +816,20 @@ function getProgressPoints(
         session.started_at,
 
       weight:
-        heaviestSet.weight,
+        convertWeight(
+          heaviestSet.weight,
+          heaviestSet.weight_unit,
+          weightUnit
+        ),
 
       reps:
         heaviestSet.reps,
 
-      weightUnit:
-        heaviestSet.weight_unit,
+      estimatedOneRepMax:
+        calculateEstimatedOneRepMax(
+          bestEstimatedSet,
+          weightUnit
+        ),
     });
   }
 
@@ -601,6 +846,137 @@ function getProgressPoints(
 }
 
 
+function getHeaviestSet(
+  sets: WorkoutSetLog[],
+  weightUnit: WeightUnit
+) {
+  return sets.reduce(
+    (
+      best,
+      set
+    ) => {
+      if (
+        best.weight ===
+          null ||
+        set.weight ===
+          null
+      ) {
+        return best;
+      }
+
+
+      const bestWeight =
+        convertWeight(
+          best.weight,
+          best.weight_unit,
+          weightUnit
+        );
+
+
+      const setWeight =
+        convertWeight(
+          set.weight,
+          set.weight_unit,
+          weightUnit
+        );
+
+
+      if (
+        setWeight >
+        bestWeight
+      ) {
+        return set;
+      }
+
+
+      if (
+        setWeight ===
+          bestWeight &&
+        (set.reps ?? 0) >
+          (best.reps ?? 0)
+      ) {
+        return set;
+      }
+
+
+      return best;
+    }
+  );
+}
+
+
+function getBestEstimatedOneRepMaxSet(
+  sets: WorkoutSetLog[],
+  weightUnit: WeightUnit
+) {
+  return sets.reduce(
+    (
+      best,
+      set
+    ) => {
+      const bestEstimate =
+        calculateEstimatedOneRepMax(
+          best,
+          weightUnit
+        );
+
+
+      const setEstimate =
+        calculateEstimatedOneRepMax(
+          set,
+          weightUnit
+        );
+
+
+      return (
+        setEstimate >
+        bestEstimate
+      )
+        ? set
+        : best;
+    }
+  );
+}
+
+
+function calculateEstimatedOneRepMax(
+  set: WorkoutSetLog,
+  weightUnit: WeightUnit
+) {
+  if (
+    set.weight === null ||
+    set.reps === null ||
+    set.reps <= 0
+  ) {
+    return 0;
+  }
+
+
+  const convertedWeight =
+    convertWeight(
+      set.weight,
+      set.weight_unit,
+      weightUnit
+    );
+
+
+  if (
+    set.reps === 1
+  ) {
+    return convertedWeight;
+  }
+
+
+  return (
+    convertedWeight *
+    (
+      1 +
+      set.reps / 30
+    )
+  );
+}
+
+
 function formatShortDate(
   date: string
 ) {
@@ -609,26 +985,12 @@ function formatShortDate(
   ).toLocaleDateString(
     [],
     {
-      month: "short",
-      day: "numeric",
+      month:
+        "short",
+
+      day:
+        "numeric",
     }
-  );
-}
-
-
-function formatNumber(
-  value: number
-) {
-  if (
-    Number.isInteger(
-      value
-    )
-  ) {
-    return value.toString();
-  }
-
-  return value.toFixed(
-    1
   );
 }
 

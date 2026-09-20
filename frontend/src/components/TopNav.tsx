@@ -1,15 +1,26 @@
+import WeightUnitToggle from "./WeightUnitToggle";
+
 import type {
   User,
+  WeightUnit,
 } from "../types/workout";
 
 
 type TopNavProps = {
   user: User;
+
+  weightUnit: WeightUnit;
+
+  onWeightUnitChange: (
+    unit: WeightUnit
+  ) => void;
 };
 
 
 function TopNav({
   user,
+  weightUnit,
+  onWeightUnitChange,
 }: TopNavProps) {
   const firstLetter =
     user.name
@@ -54,6 +65,16 @@ function TopNav({
 
 
       <div className="top-nav-user">
+
+        <WeightUnitToggle
+          weightUnit={
+            weightUnit
+          }
+          onChange={
+            onWeightUnitChange
+          }
+        />
+
 
         <span className="nav-avatar">
           {firstLetter}
