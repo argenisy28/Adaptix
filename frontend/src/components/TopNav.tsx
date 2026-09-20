@@ -24,7 +24,7 @@ function TopNav({
         className="top-nav-brand"
         href="#"
       >
-        Adaptix<span>.</span>
+        Adaptix
       </a>
 
 

@@ -260,11 +260,7 @@
   line-height: 0.95;
 }
 
-.header h1::after {
-  content: ".";
 
-  color: #5cff8b;
-}
 
 .header > p {
   position: relative;
@@ -2948,3 +2944,613 @@ summary::-webkit-details-marker {
   }
 
 }
+
+/* ======================================================
+   ADAPTIX BLUE THEME
+   Dark navy + electric blue
+====================================================== */
+
+:root {
+  --adaptix-blue: #4da3ff;
+  --adaptix-blue-bright: #6cb6ff;
+  --adaptix-blue-light: #8ac8ff;
+  --adaptix-blue-dark: #2f81f7;
+
+  --adaptix-blue-soft:
+    rgba(77, 163, 255, 0.08);
+
+  --adaptix-blue-glow:
+    rgba(77, 163, 255, 0.15);
+
+  --adaptix-blue-border:
+    rgba(77, 163, 255, 0.28);
+
+  --adaptix-blue-border-strong:
+    rgba(77, 163, 255, 0.5);
+
+  --adaptix-navy: #080d14;
+  --adaptix-navy-soft: #0b1119;
+  --adaptix-card: #111821;
+  --adaptix-card-soft: #141c26;
+}
+
+
+/* ======================================================
+   PAGE BACKGROUND
+====================================================== */
+
+body {
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(47, 129, 247, 0.1),
+      transparent 34%
+    ),
+    #080d14 !important;
+}
+
+
+.app {
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(77, 163, 255, 0.07),
+      transparent 30%
+    ) !important;
+}
+
+
+/* ======================================================
+   TOP NAVIGATION
+====================================================== */
+
+.top-nav {
+  border-color:
+    rgba(77, 163, 255, 0.12) !important;
+
+  background:
+    rgba(12, 17, 24, 0.95) !important;
+}
+
+
+.top-nav-brand {
+  color: #f4f7fb !important;
+}
+
+
+.top-nav-brand:hover {
+  color:
+    var(--adaptix-blue-bright) !important;
+}
+
+
+.top-nav-links a:hover {
+  color:
+    var(--adaptix-blue-bright) !important;
+}
+
+
+.nav-avatar {
+  background:
+    linear-gradient(
+      135deg,
+      var(--adaptix-blue-bright),
+      var(--adaptix-blue-dark)
+    ) !important;
+
+  color: #06101a !important;
+
+  box-shadow:
+    0 0 22px
+    rgba(77, 163, 255, 0.18) !important;
+}
+
+
+/* ======================================================
+   HERO / MAIN HEADER
+====================================================== */
+
+.header {
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(77, 163, 255, 0.12),
+      transparent 38%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(18, 25, 34, 0.98),
+      rgba(11, 16, 23, 0.98)
+    ) !important;
+
+  border-color:
+    rgba(77, 163, 255, 0.12) !important;
+}
+
+
+.header h1 {
+  color: #f6f8fb !important;
+}
+
+
+.backend-status {
+  border-color:
+    rgba(77, 163, 255, 0.18) !important;
+
+  background:
+    rgba(77, 163, 255, 0.08) !important;
+
+  color:
+    var(--adaptix-blue-light) !important;
+}
+
+
+.backend-status::before {
+  background:
+    var(--adaptix-blue-bright) !important;
+
+  box-shadow:
+    0 0 12px
+    rgba(77, 163, 255, 0.7) !important;
+}
+
+
+/* ======================================================
+   PROFILE
+====================================================== */
+
+.account-bar {
+  border-color:
+    rgba(77, 163, 255, 0.1) !important;
+}
+
+
+.account-bar button:hover {
+  color:
+    var(--adaptix-blue-bright) !important;
+
+  border-color:
+    var(--adaptix-blue-border) !important;
+
+  background:
+    var(--adaptix-blue-soft) !important;
+}
+
+
+/* ======================================================
+   FORM INPUTS
+====================================================== */
+
+.workout-form input:focus,
+.workout-form select:focus,
+.start-card input:focus,
+.tracker-set-row input:focus,
+.tracker-notes textarea:focus {
+  border-color:
+    var(--adaptix-blue) !important;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(77, 163, 255, 0.12) !important;
+
+  outline: none !important;
+}
+
+
+/* ======================================================
+   MAIN BUTTONS
+====================================================== */
+
+.workout-form button[type="submit"],
+.start-card button[type="submit"],
+.finish-workout-button {
+  background:
+    linear-gradient(
+      135deg,
+      var(--adaptix-blue-bright),
+      var(--adaptix-blue-dark)
+    ) !important;
+
+  color: #06101a !important;
+
+  border-color:
+    transparent !important;
+
+  box-shadow:
+    0 12px 28px
+    rgba(47, 129, 247, 0.18) !important;
+}
+
+
+.workout-form button[type="submit"]:hover,
+.start-card button[type="submit"]:hover,
+.finish-workout-button:hover {
+  box-shadow:
+    0 16px 35px
+    rgba(47, 129, 247, 0.28) !important;
+}
+
+
+/* ======================================================
+   SUCCESS MESSAGE
+====================================================== */
+
+.success-message {
+  border-color:
+    var(--adaptix-blue-border) !important;
+
+  background:
+    rgba(77, 163, 255, 0.1) !important;
+
+  color:
+    var(--adaptix-blue-light) !important;
+}
+
+
+.success-icon {
+  background:
+    rgba(77, 163, 255, 0.14) !important;
+
+  color:
+    var(--adaptix-blue-bright) !important;
+}
+
+
+/* ======================================================
+   GENERATED WORKOUT
+====================================================== */
+
+.program-badges span {
+  border-color:
+    var(--adaptix-blue-border) !important;
+
+  background:
+    rgba(77, 163, 255, 0.08) !important;
+
+  color:
+    var(--adaptix-blue-light) !important;
+}
+
+
+.recommendation {
+  border-left-color:
+    var(--adaptix-blue) !important;
+}
+
+
+.workout-card {
+  border-color:
+    rgba(77, 163, 255, 0.1) !important;
+}
+
+
+.workout-card::before {
+  background:
+    var(--adaptix-blue-bright) !important;
+
+  box-shadow:
+    0 0 14px
+    rgba(77, 163, 255, 0.4) !important;
+}
+
+
+/* ======================================================
+   SAVED PROGRAMS
+====================================================== */
+
+.saved-header button:hover {
+  color:
+    var(--adaptix-blue-bright) !important;
+
+  border-color:
+    var(--adaptix-blue-border) !important;
+
+  background:
+    var(--adaptix-blue-soft) !important;
+}
+
+
+.saved-program:hover {
+  border-color:
+    rgba(77, 163, 255, 0.22) !important;
+}
+
+
+.expand-label {
+  color:
+    var(--adaptix-blue-bright) !important;
+}
+
+
+.start-workout-button {
+  border-color:
+    var(--adaptix-blue-border) !important;
+
+  background:
+    rgba(77, 163, 255, 0.08) !important;
+
+  color:
+    var(--adaptix-blue-light) !important;
+}
+
+
+.start-workout-button:hover {
+  border-color:
+    var(--adaptix-blue-border-strong) !important;
+
+  background:
+    rgba(77, 163, 255, 0.15) !important;
+}
+
+
+/* ======================================================
+   WORKOUT TRACKER
+====================================================== */
+
+.workout-tracker {
+  border-color:
+    rgba(77, 163, 255, 0.12) !important;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(77, 163, 255, 0.08),
+      transparent 34%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(17, 24, 33, 0.98),
+      rgba(10, 15, 22, 0.98)
+    ) !important;
+}
+
+
+.tracker-label {
+  border-color:
+    var(--adaptix-blue-border) !important;
+
+  background:
+    rgba(77, 163, 255, 0.09) !important;
+
+  color:
+    var(--adaptix-blue-light) !important;
+}
+
+
+.tracker-session-info span {
+  border-color:
+    rgba(77, 163, 255, 0.14) !important;
+}
+
+
+.tracker-exercise {
+  border-color:
+    rgba(77, 163, 255, 0.1) !important;
+}
+
+
+.previous-performance-badge {
+  border-color:
+    var(--adaptix-blue-border) !important;
+
+  background:
+    rgba(77, 163, 255, 0.08) !important;
+
+  color:
+    var(--adaptix-blue-light) !important;
+}
+
+
+.use-previous-button {
+  border-color:
+    var(--adaptix-blue-border) !important;
+
+  background:
+    rgba(77, 163, 255, 0.08) !important;
+
+  color:
+    var(--adaptix-blue-light) !important;
+}
+
+
+.use-previous-button:hover {
+  border-color:
+    var(--adaptix-blue-border-strong) !important;
+
+  background:
+    rgba(77, 163, 255, 0.15) !important;
+}
+
+
+.previous-set {
+  color:
+    var(--adaptix-blue-light) !important;
+}
+
+
+/* ======================================================
+   SAVE SET BUTTONS
+====================================================== */
+
+.save-set-button {
+  border-color:
+    var(--adaptix-blue-border) !important;
+
+  background:
+    rgba(77, 163, 255, 0.08) !important;
+
+  color:
+    var(--adaptix-blue-light) !important;
+}
+
+
+.save-set-button:hover {
+  border-color:
+    var(--adaptix-blue-border-strong) !important;
+
+  background:
+    rgba(77, 163, 255, 0.15) !important;
+}
+
+
+.set-saved-button {
+  border-color:
+    rgba(77, 163, 255, 0.2) !important;
+
+  background:
+    rgba(77, 163, 255, 0.1) !important;
+
+  color:
+    var(--adaptix-blue-bright) !important;
+}
+
+
+/* ======================================================
+   WORKOUT HISTORY
+====================================================== */
+
+.history-header button:hover {
+  border-color:
+    var(--adaptix-blue-border) !important;
+
+  color:
+    var(--adaptix-blue-bright) !important;
+
+  background:
+    var(--adaptix-blue-soft) !important;
+}
+
+
+.history-session:hover {
+  border-color:
+    rgba(77, 163, 255, 0.22) !important;
+}
+
+
+.history-status {
+  border-color:
+    var(--adaptix-blue-border) !important;
+
+  background:
+    rgba(77, 163, 255, 0.08) !important;
+
+  color:
+    var(--adaptix-blue-light) !important;
+}
+
+
+.history-expand-label {
+  color:
+    var(--adaptix-blue-bright) !important;
+}
+
+
+/* ======================================================
+   PERSONAL RECORDS
+====================================================== */
+
+.records-label {
+  color:
+    var(--adaptix-blue-bright) !important;
+}
+
+
+.record-card {
+  border-color:
+    rgba(77, 163, 255, 0.1) !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(17, 24, 33, 0.98),
+      rgba(10, 15, 22, 0.98)
+    ) !important;
+}
+
+
+.record-card:hover {
+  border-color:
+    rgba(77, 163, 255, 0.28) !important;
+
+  box-shadow:
+    0 18px 38px
+    rgba(47, 129, 247, 0.08) !important;
+}
+
+
+.record-performance strong {
+  color:
+    var(--adaptix-blue-bright) !important;
+}
+
+
+/*
+   Intentionally NOT changing:
+   - .record-badge
+   - .record-trophy
+   - .pr-message
+   - .pr-icon
+
+   Those remain gold because they represent PR achievements.
+*/
+
+
+/* ======================================================
+   START / LOGIN SCREEN
+====================================================== */
+
+.start-screen {
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(77, 163, 255, 0.11),
+      transparent 36%
+    ),
+    #080d14 !important;
+}
+
+
+.start-card {
+  border-color:
+    rgba(77, 163, 255, 0.13) !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(18, 25, 34, 0.98),
+      rgba(10, 15, 22, 0.98)
+    ) !important;
+
+  box-shadow:
+    0 25px 70px
+    rgba(0, 0, 0, 0.35) !important;
+}
+
+
+/* ======================================================
+   SCROLLBAR
+====================================================== */
+
+::-webkit-scrollbar-thumb {
+  background:
+    rgba(77, 163, 255, 0.3) !important;
+}
+
+
+::-webkit-scrollbar-thumb:hover {
+  background:
+    rgba(77, 163, 255, 0.5) !important;
+}
+
+
+/* ======================================================
+   TEXT SELECTION
+====================================================== */
+
+::selection {
+  background:
+    rgba(77, 163, 255, 0.3);
+
+  color: white;
+}
+
