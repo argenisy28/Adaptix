@@ -16,6 +16,7 @@ import ProfileBar from "./components/ProfileBar";
 import SavedPrograms from "./components/SavedPrograms";
 import StartScreen from "./components/StartScreen";
 import TopNav from "./components/TopNav";
+import TrainingDashboard from "./components/TrainingDashboard";
 import WorkoutCard from "./components/WorkoutCard";
 import WorkoutForm from "./components/WorkoutForm";
 import WorkoutHistory from "./components/WorkoutHistory";
@@ -1314,6 +1315,15 @@ function App() {
             />
 
           </header>
+
+
+          {/* Training Dashboard */}
+
+          <TrainingDashboard
+            workoutHistory={
+              workoutHistory
+            }
+          />
 
 
           {/* Workout Generator */}

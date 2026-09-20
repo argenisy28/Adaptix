@@ -30,6 +30,10 @@ function TopNav({
 
       <div className="top-nav-links">
 
+        <a href="#dashboard">
+          Dashboard
+        </a>
+
         <a href="#build">
           Build
         </a>
