@@ -687,9 +687,6 @@ Planned future improvements include:
 
 Computer Engineering student at the Polytechnic University of Puerto Rico.
 
-Interested in software engineering, cybersecurity, IT, embedded systems, and full-stack development.
-
-
 ---
 
 ## 📄 License
