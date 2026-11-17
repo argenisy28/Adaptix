@@ -2,6 +2,8 @@
 
 A workout planner and training log. You tell it your goal, experience level, how many days a week you can train, and what equipment you have; it builds a program. Then you log your sets against that program and it keeps track of your history, PRs, and progress per exercise.
 
+Because I've been lifting weights since 12 years old, and competed in olympic weightlifting in college, Adaptix was a natural project idea for me given my background in fitness and computer engineering. I hope people can take great benefit from using it and improve their mental and physical health. 
+
 Built with React + TypeScript on the frontend, FastAPI + Python on the backend, and PostgreSQL for storage.
 
 ![Dashboard](screenshots/01-dashboard.png)
