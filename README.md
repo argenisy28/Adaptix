@@ -2,7 +2,7 @@
 
 A workout planner and training log. You tell it your goal, experience level, how many days a week you can train, and what equipment you have; it builds a program. Then you log your sets against that program and it keeps track of your history, PRs, and progress per exercise.
 
-Built with React + TypeScript on the front, FastAPI on the back, and PostgreSQL for storage.
+Built with React + TypeScript on the frontend, FastAPI + Python on the backend, and PostgreSQL for storage.
 
 ![Dashboard](screenshots/01-dashboard.png)
 
